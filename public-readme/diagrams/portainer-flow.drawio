@@ -1,0 +1,111 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="portainer-flow" name="Portainer Architecture">
+    <mxGraphModel dx="1356" dy="810" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="browser" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=11;" value="&lt;b&gt;👤 Browser&lt;/b&gt;&lt;br&gt;https://portainer.local.example.com&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;routed via Traefik on LAN&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="280" x="800" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="server" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#1A5490;strokeWidth=3;fontSize=11;" value="&lt;b&gt;Portainer Server&lt;/b&gt;&amp;nbsp;- CT 1xx · 10.0.10.acd&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;portainer/portainer-ce:lts · HTTPS :9443 · Edge tunnel :8000&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Manages all containers across the homelab via Portainer Agents.&lt;br&gt;Each agent connection is initiated outbound from the server.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="140" width="560" x="660" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_mgmt" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4fd;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=13;fontStyle=1;verticalAlign=top;align=center;spacingTop=8;" value="Management VLAN - 10.0.10.x" vertex="1">
+          <mxGeometry height="570" width="1090" x="40" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_public" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff0e0;strokeColor=#E67E22;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=13;fontStyle=1;verticalAlign=top;align=center;spacingTop=8;" value="Public VLAN - 10.0.20.x" vertex="1">
+          <mxGeometry height="570" width="700" x="1160" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="agent_traefik" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;traefik&lt;/b&gt; (CT ab)&lt;br&gt;10.0.10.ab&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;Portainer Agent :9001&lt;br&gt;portainer/agent:lts&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="220" x="80" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="agent_homepage" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;homepage&lt;/b&gt; (CT ac)&lt;br&gt;10.0.10.ac&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;Portainer Agent :9001&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="220" x="320" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="agent_monitoring" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;monitoring&lt;/b&gt; (CT ad)&lt;br&gt;10.0.10.ad&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;Portainer Agent :9001&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="220" x="560" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="agent_n8n" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;n8n&lt;/b&gt; (CT af)&lt;br&gt;10.0.10.af&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;Portainer Agent :9001&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="220" x="800" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="more_mgmt" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;strokeWidth=1;fontSize=10;fontColor=#555555;align=center;" value="&lt;span style=&quot;font-style:italic;&quot;&gt;…and the rest:&lt;/span&gt; &lt;b&gt;kasm&lt;/b&gt; (CT ag) · &lt;b&gt;cloudflare-tunnel&lt;/b&gt; (CT ah) · &lt;b&gt;scraper&lt;/b&gt; (CT aj)&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;Each runs the same Portainer Agent container on :9001&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="940" x="80" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="note_jellyfin" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF5E0;strokeColor=#d6b656;fontSize=10;fontColor=#664400;align=left;spacingLeft=8;spacingTop=4;" value="&lt;b&gt;Note:&lt;/b&gt; Jellyfin (CT ba, public VLAN) is a &lt;i&gt;native&lt;/i&gt; LXC - runs without Docker.&lt;br&gt;No Docker, no Portainer agent. Jellyfin is managed via the Proxmox UI directly." vertex="1">
+          <mxGeometry height="60" width="940" x="80" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="mgmt_summary" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#003399;" value="&lt;b&gt;7 Docker-in-LXC services on this VLAN ⇒ 7 Portainer Agents&lt;/b&gt;" vertex="1">
+          <mxGeometry height="20" width="940" x="80" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="agent_nextcloud" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;nextcloud-vm&lt;/b&gt; (VM)&lt;br&gt;10.0.20.ba&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;Portainer Agent :9001&lt;br&gt;bound to 10.0.20.212:9001 only&lt;br&gt;iptables: server-IP allowed, others dropped&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="280" x="1200" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="agent_media" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;media-server&lt;/b&gt; (VM)&lt;br&gt;10.0.20.bb&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;Portainer Agent :9001&lt;br&gt;bound to 10.0.20.211:9001 only&lt;br&gt;iptables: server-IP allowed, others dropped&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="280" x="1530" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="public_summary" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF5E0;strokeColor=#d6b656;strokeWidth=1;fontSize=11;fontStyle=1;fontColor=#664400;align=center;" value="&lt;b&gt;2 Docker VMs on this VLAN ⇒ 2 Portainer Agents&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;font-style:italic;&quot;&gt;VM agents have an extra iptables rule&lt;br&gt;restricting :9001 to the Portainer server IP only.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="610" x="1200" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="firewall_note" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE5E0;strokeColor=#C0392B;strokeWidth=2;fontSize=10;fontColor=#7B1414;align=left;spacingLeft=10;spacingTop=6;" value="&lt;b&gt;⚠ VLAN firewall&amp;nbsp;&lt;/b&gt;&lt;br&gt;the &lt;u&gt;server&lt;/u&gt; (mgmt) initiates &lt;u&gt;outbound&lt;/u&gt; to the agent (mgmt or public).&lt;br&gt;mgmt → public is allowed in both current and planned firewall states." vertex="1">
+          <mxGeometry height="100" width="610" x="1200" y="820" as="geometry" />
+        </mxCell>
+        <mxCell id="e_browser" edge="1" parent="1" source="browser" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=2;fontSize=10;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="server" value="HTTPS :9443">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_traefik" edge="1" parent="1" source="server" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#1A5490;strokeWidth=2;exitX=0.05;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="agent_traefik" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="720" y="330" />
+              <mxPoint x="720" y="470" />
+              <mxPoint x="190" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_homepage" edge="1" parent="1" source="server" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#1A5490;strokeWidth=2;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="agent_homepage" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="800" y="490" />
+              <mxPoint x="430" y="490" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_monitoring" edge="1" parent="1" source="server" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#1A5490;strokeWidth=2;exitX=0.45;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="agent_monitoring" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="912" y="510" />
+              <mxPoint x="670" y="510" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_n8n" edge="1" parent="1" source="server" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#1A5490;strokeWidth=2;exitX=0.6;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="agent_n8n" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="996" y="530" />
+              <mxPoint x="910" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_nextcloud" edge="1" parent="1" source="server" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#1A5490;strokeWidth=2;exitX=0.8;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="agent_nextcloud" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1140" y="330" />
+              <mxPoint x="1140" y="500" />
+              <mxPoint x="1340" y="500" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_media" edge="1" parent="1" source="server" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#1A5490;strokeWidth=2;exitX=0.95;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="agent_media" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1192" y="470" />
+              <mxPoint x="1670" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="connection_label" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1A5490;fontSize=10;fontColor=#0033AA;align=center;" value="&lt;b&gt;TCP :9001 (server-initiated)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;Persistent TLS connection · agent socket → Docker API on host&lt;/span&gt;" vertex="1">
+          <mxGeometry height="40" width="380" x="1300" y="370" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

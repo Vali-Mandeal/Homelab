@@ -1,0 +1,51 @@
+.figure {
+  margin: 1.5rem 0;
+  padding: 0;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--ifm-background-surface-color);
+}
+
+.container {
+  width: 100%;
+  display: block;
+  transition: height 0.2s ease;
+}
+
+/* Override viewer's default white background so diagram respects our surface color */
+.container :global(.mxgraph-container),
+.container :global(.geBackgroundPage) {
+  background: var(--ifm-background-surface-color) !important;
+}
+
+.placeholder,
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background: var(--ifm-code-background);
+  border-radius: 8px 8px 0 0;
+}
+
+.loadingText {
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.9rem;
+}
+
+.error {
+  color: var(--ifm-color-danger);
+  font-size: 0.9rem;
+  gap: 0.5rem;
+}
+
+.caption {
+  display: block;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--ifm-color-emphasis-600);
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  font-style: italic;
+  text-align: center;
+}

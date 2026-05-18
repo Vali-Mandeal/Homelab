@@ -1,0 +1,16 @@
+services:
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
+    networks:
+      - tunnel-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  tunnel-net:
+    driver: bridge

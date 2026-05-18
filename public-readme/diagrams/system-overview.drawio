@@ -1,0 +1,169 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="system-overview" name="System Overview">
+    <mxGraphModel dx="1725" dy="1031" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1720" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=26;fontStyle=1;" value="Homelab IaC - System Overview" vertex="1">
+          <mxGeometry height="44" width="2320" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#666666;fontStyle=2;" value="One Proxmox host - 12 services across LXC, VM and Docker-in-LXC - two VLANs - four-tier storage - bash-orchestrated end-to-end" vertex="1">
+          <mxGeometry height="24" width="2320" x="40" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_external" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7e0;strokeColor=#d6b656;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingTop=8;spacingLeft=16;" value="External dependencies" vertex="1">
+          <mxGeometry height="190" width="2320" x="40" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_user" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Internet user&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;LAN clients use split-horizon DNS so&lt;br&gt;traffic stays internal. Off-site clients&lt;br&gt;enter via the Cloudflare Tunnel.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="420" x="80" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_cloudflare" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffeacc;strokeColor=#E67E22;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Cloudflare&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Authoritative DNS for example.com&lt;br&gt;Zero-Trust Tunnel (mTLS to connector)&lt;br&gt;DNS API for ACME DNS-01 challenges&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="420" x="540" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_le" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffeacc;strokeColor=#E67E22;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Let&#39;s Encrypt CA&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Issues wildcard *.local.example.com&lt;br&gt;90-day cert, auto-renewed by Traefik&lt;br&gt;DNS-01 challenge - no port 80 needed&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="420" x="1000" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_apis" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;External APIs consumed by services&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Telegram Bot API - scraper + monitoring alerts&lt;br&gt;SMTP relay - nextcloud, scraper notifications&lt;br&gt;MongoDB Atlas - WebScraper persistence&lt;br&gt;WireGuard VPN provider - Media Pipeline egress&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="430" x="1460" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_github" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;GitHub source&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;BrowserIsolation - source repo&lt;br&gt;WebScraper - source repo&lt;br&gt;IaC fetches tarballs at deploy time;&lt;br&gt;apps live in their own public repos.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="390" x="1930" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_edge" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4fd;strokeColor=#2980B9;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingTop=8;spacingLeft=16;" value="On-premise network - UniFi" vertex="1">
+          <mxGeometry height="160" width="2320" x="40" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_gateway" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Gateway / Router&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Dream Machine Pro Max&lt;br&gt;IDS/IPS, VPN, firewall, local DNS&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="360" x="80" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_switch" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Core switch&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;USW Pro Max 48 PoE&lt;br&gt;VLAN trunk, PoE for the APs&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="320" x="460" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_aps" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Access points (3)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;U7 Pro XG (main) + U7 Lite + UK Ultra&lt;br&gt;WiFi 7 / WiFi 6, full coverage&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="360" x="800" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_vlans" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;strokeWidth=1;fontSize=11;align=left;spacingLeft=12;spacingTop=8;" value="&lt;b&gt;Two VLANs (L2 isolated)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;&quot;&gt;&lt;b style=&quot;color:#2980B9;&quot;&gt;Management&lt;/b&gt; - 10.0.10.0/24 - infrastructure plane&lt;br&gt;&lt;b style=&quot;color:#B85450;&quot;&gt;Public&lt;/b&gt; - 10.0.20.0/24 - media + file sync + external-facing&lt;br&gt;Public VLAN cannot initiate to Management. LAN clients hit both via Traefik.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="115" width="1140" x="1180" y="375" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_proxmox" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#2980B9;strokeWidth=3;dashed=1;dashPattern=10 5;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingTop=10;spacingLeft=16;" value="&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; Proxmox VE host - Intel Ultra 7 265 - 64 GB DDR5 - 1 TB NVMe Gen 5 - KVM-over-IP" vertex="1">
+          <mxGeometry height="770" width="1460" x="40" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_mgmt" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4fd;strokeColor=#2980B9;strokeWidth=2;dashed=1;dashPattern=6 3;fontSize=13;fontStyle=1;verticalAlign=top;align=left;spacingTop=6;spacingLeft=12;fontColor=#2980B9;" value="&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;Management VLAN - 10.0.10.0/24" vertex="1">
+          <mxGeometry height="470" width="1420" x="60" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_traefik" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Traefik&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;LXC + Docker&lt;br&gt;Reverse proxy, wildcard TLS&lt;br&gt;23 routers, 12 backends&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="340" x="80" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_cf" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;cloudflare-tunnel&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;LXC + Docker&lt;br&gt;Public-facing ingress via&lt;br&gt;Cloudflare Zero-Trust connector&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="340" x="440" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_portainer" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Portainer&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;LXC + Docker&lt;br&gt;Single pane for every Docker&lt;br&gt;container on every CT/VM&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="340" x="800" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_homepage" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Homepage&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;LXC + Docker&lt;br&gt;Service dashboard with&lt;br&gt;live status tiles&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="300" x="1160" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_monitoring" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Monitoring stack&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;LXC + Docker&lt;br&gt;Grafana + Prometheus + Loki + Alloy&lt;br&gt;Telegram alerting, agents on every host&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="540" x="80" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_n8n" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;n8n&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;LXC + Docker&lt;br&gt;Workflow automation&lt;br&gt;Postgres-backed&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="380" x="640" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_docs" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Docs (Docusaurus)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;LXC + Docker&lt;br&gt;Auto-spawn one container per&lt;br&gt;docs site, hot-reload from SMB&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="420" x="1040" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_kasm" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=3;fontSize=11;" value="&lt;b&gt;BrowserIsolation&lt;/b&gt; (own .NET 9 app)&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;LXC + Docker&lt;br&gt;Spawns disposable Firefox containers per session, proxied by YARP.&lt;br&gt;A 1-container alternative to Kasm Workspaces&#39; 8-container default install.&lt;br&gt;Source: github.com/Vali-Mandeal/BrowserIsolation&lt;/span&gt;" vertex="1">
+          <mxGeometry height="160" width="680" x="80" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_scraper" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=3;fontSize=11;" value="&lt;b&gt;WebScraper&lt;/b&gt; (own .NET 10 + React app)&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;LXC + Docker - .NET 10 minimal API + React 18/Vite admin UI&lt;br&gt;Hourly Quartz cron, Playwright headless Chromium, MongoDB persistence,&lt;br&gt;Telegram + SMTP notifications, SignalR live UI for test runs.&lt;br&gt;Source: github.com/Vali-Mandeal/WebScraper&lt;/span&gt;" vertex="1">
+          <mxGeometry height="160" width="680" x="780" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_public" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fceeec;strokeColor=#B85450;strokeWidth=2;dashed=1;dashPattern=6 3;fontSize=13;fontStyle=1;verticalAlign=top;align=left;spacingTop=6;spacingLeft=12;fontColor=#B85450;" value="Public VLAN - 10.0.20.0/24 - egress-allowed services" vertex="1">
+          <mxGeometry height="160" width="1420" x="60" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_jellyfin" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#B85450;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Jellyfin&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Native LXC&lt;br&gt;Media server with iGPU&lt;br&gt;passthrough for hardware transcoding&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="440" x="80" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_nextcloud" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#B85450;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Nextcloud + OnlyOffice&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;QEMU VM&lt;br&gt;Apache + PHP + Postgres + Redis stack&lt;br&gt;File sync, CalDAV/CardDAV, browser docs&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="440" x="540" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_arr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#B85450;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Media Pipeline&lt;/b&gt; (5 OSS tools)&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;QEMU VM&lt;br&gt;Radarr + Sonarr + Prowlarr + Jellyseerr + qBittorrent&lt;br&gt;VPN-gated downloads via Gluetun (WireGuard, port-forward)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="460" x="1000" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_nas" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7e0;strokeColor=#d6b656;strokeWidth=3;dashed=1;dashPattern=10 5;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingTop=10;spacingLeft=16;" value="&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;NAS - UniFi UNAS Pro - separate appliance, same rack" vertex="1">
+          <mxGeometry height="770" width="820" x="1540" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="storage_hot" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;fontSize=11;align=left;spacingLeft=10;spacingTop=8;verticalAlign=top;" value="&lt;b&gt;Tier 1 - HOT&lt;/b&gt; (in the Proxmox box)&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Samsung 9100 PRO 1 TB NVMe Gen 5&lt;br&gt;Proxmox install + every LXC rootfs + every VM disk + /opt/&amp;lt;svc&amp;gt;&lt;br&gt;&lt;span style=&quot;color:#b85450;font-style:italic;&quot;&gt;Intentionally non-redundant - reproducible from IaC + Tier 2&lt;/span&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="780" x="1560" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="storage_warm_fast" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;align=left;spacingLeft=10;spacingTop=8;verticalAlign=top;" value="&lt;b&gt;Tier 2 - WARM-fast&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Samsung 870 EVO 1 TB SATA SSD (UNAS Pro)&lt;br&gt;Nightly backups from every stateful service - 7-day retention&lt;br&gt;Postgres dumps, Grafana dashboards, app configs&lt;br&gt;&lt;span style=&quot;color: rgb(0, 170, 102); font-style: italic;&quot;&gt;IaC + this tier = full server recovery from bare metal&lt;/span&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="140" width="780" x="1560" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="storage_warm_cap" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=11;align=left;spacingLeft=10;spacingTop=8;verticalAlign=top;" value="&lt;b&gt;Tier 3 - WARM-capacity&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;3x Seagate Exos X18 16 TB - RAID 5 - ~32 TB usable&lt;br&gt;Three free bays for expansion in the UNAS Pro&lt;br&gt;NFS: media library (Jellyfin reads, Media Pipeline writes)&lt;br&gt;SMB: user data (Nextcloud), internal docs source tree&lt;/span&gt;" vertex="1">
+          <mxGeometry height="140" width="780" x="1560" y="890" as="geometry" />
+        </mxCell>
+        <mxCell id="storage_cold" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;dashed=1;align=left;spacingLeft=10;spacingTop=8;verticalAlign=top;" value="&lt;b&gt;Tier 4 - COLD&lt;/b&gt; (in development)&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;DIY 3D-printed Ubuntu NAS - separate physical fault domain&lt;br&gt;Scheduled pull from Tiers 2 + 3, offsite-style replica&lt;br&gt;Closes the &quot;NAS itself dies&quot; gap that RAID 5 alone can&#39;t solve&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="780" x="1560" y="1050" as="geometry" />
+        </mxCell>
+        <mxCell id="storage_note" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;strokeWidth=1;fontSize=10;align=left;spacingLeft=10;spacingTop=6;verticalAlign=top;" value="&lt;b&gt;Mount layout into services&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;/mnt/backups (SMB) - every service writes nightly backups&lt;br&gt;/mnt/media (NFS) - Jellyfin reads, Media Pipeline writes&lt;br&gt;/mnt/personal_data + /mnt/shared_data (SMB) - Nextcloud volumes&lt;br&gt;/mnt/private (SMB) - internal documentation source tree&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="780" x="1560" y="1180" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_iac" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673A6;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingTop=8;spacingLeft=16;" value="IaC control plane - workstation - bash + SSH" vertex="1">
+          <mxGeometry height="170" width="2320" x="40" y="1340" as="geometry" />
+        </mxCell>
+        <mxCell id="iac_deploy" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673A6;strokeWidth=2;fontSize=11;" value="&lt;b&gt;deploy-proxmox.sh&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;One-command hypervisor bootstrap.&lt;br&gt;Configures apt repos, network bridges,&lt;br&gt;storage mounts, LXC idmap, golden VM&lt;br&gt;template, Proxmox API users.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="110" width="540" x="80" y="1390" as="geometry" />
+        </mxCell>
+        <mxCell id="iac_services" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673A6;strokeWidth=2;fontSize=11;" value="&lt;b&gt;deploy-services.sh&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Interactive menu to deploy any service.&lt;br&gt;Full mode: destroy + recreate from golden image.&lt;br&gt;Refresh mode: reuse existing CT/VM, redeploy&lt;br&gt;files and restart containers.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="110" width="540" x="640" y="1390" as="geometry" />
+        </mxCell>
+        <mxCell id="iac_update" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673A6;strokeWidth=2;fontSize=11;" value="&lt;b&gt;update-services.sh&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;In-place update for any service.&lt;br&gt;OS patches + docker pull + restart.&lt;br&gt;Fail-loud diagnostics: smoke tests fail honestly,&lt;br&gt;envsubst sanity-checked, container logs dumped on failure.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="110" width="540" x="1200" y="1390" as="geometry" />
+        </mxCell>
+        <mxCell id="iac_lib" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673A6;strokeWidth=1;fontSize=11;" value="&lt;b&gt;services/lib/&lt;/b&gt; - shared library&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;common.sh - logging + GitHub source fetcher&lt;br&gt;docker-service.sh - LXC + Docker shape&lt;br&gt;lxc-service.sh - native LXC shape&lt;br&gt;vm-service.sh - QEMU + cloud-init shape&lt;/span&gt;" vertex="1">
+          <mxGeometry height="110" width="560" x="1760" y="1390" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_stats" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=2;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingTop=10;spacingLeft=16;" value="By the numbers" vertex="1">
+          <mxGeometry height="200" width="2320" x="40" y="1550" as="geometry" />
+        </mxCell>
+        <mxCell id="stat_services" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fillColor=#fafafa;strokeColor=#cccccc;strokeWidth=1;" value="&lt;span style=&quot;font-size:42px;font-weight:bold;color:#2980B9;&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#666;&quot;&gt;services running&lt;br&gt;8 LXC + 2 VM + 2 native&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="260" x="80" y="1600" as="geometry" />
+        </mxCell>
+        <mxCell id="stat_routers" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fillColor=#fafafa;strokeColor=#cccccc;strokeWidth=1;" value="&lt;span style=&quot;font-size:42px;font-weight:bold;color:#2980B9;&quot;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#666;&quot;&gt;Traefik routers&lt;br&gt;across 12 backend groups&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="260" x="360" y="1600" as="geometry" />
+        </mxCell>
+        <mxCell id="stat_vlans" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fillColor=#fafafa;strokeColor=#cccccc;strokeWidth=1;" value="&lt;span style=&quot;font-size:42px;font-weight:bold;color:#B85450;&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#666;&quot;&gt;isolated VLANs&lt;br&gt;Mgmt + Public, L3 firewalled&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="260" x="640" y="1600" as="geometry" />
+        </mxCell>
+        <mxCell id="stat_tiers" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fillColor=#fafafa;strokeColor=#cccccc;strokeWidth=1;" value="&lt;span style=&quot;font-size:42px;font-weight:bold;color:#27AE60;&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#666;&quot;&gt;storage tiers&lt;br&gt;3 active, 1 in development&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="260" x="920" y="1600" as="geometry" />
+        </mxCell>
+        <mxCell id="stat_backups" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fillColor=#fafafa;strokeColor=#cccccc;strokeWidth=1;" value="&lt;span style=&quot;font-size:42px;font-weight:bold;color:#d6b656;&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#666;&quot;&gt;stateful services with&lt;br&gt;nightly DR backups, 7-day retention&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="260" x="1200" y="1600" as="geometry" />
+        </mxCell>
+        <mxCell id="stat_capacity" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fillColor=#fafafa;strokeColor=#cccccc;strokeWidth=1;" value="&lt;span style=&quot;font-size:36px;font-weight:bold;color:#27AE60;&quot;&gt;~32 TB&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#666;&quot;&gt;bulk storage usable (RAID 5)&lt;br&gt;room for 3 more drives in the array&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="280" x="1480" y="1600" as="geometry" />
+        </mxCell>
+        <mxCell id="stat_dr" parent="1" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;fillColor=#e8f7e0;strokeColor=#27AE60;strokeWidth=2;spacingLeft=14;spacingTop=10;" value="&lt;span style=&quot;font-size: 11px; font-weight: bold; color: rgb(0, 170, 102);&quot;&gt;Disaster recovery contract:&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size: 11px; color: rgb(0, 170, 102);&quot;&gt;A new bare-metal host&lt;br&gt;&lt;b&gt;+&lt;/b&gt; this IaC repo&lt;br&gt;&lt;b&gt;+&lt;/b&gt; the latest Tier-2 backups&lt;br&gt;= full recovery, every time.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="540" x="1780" y="1600" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ext_net" edge="1" parent="1" source="zone_external" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;strokeWidth=3;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="zone_edge" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_net_pve" edge="1" parent="1" source="zone_edge" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#2980B9;strokeWidth=3;fontSize=12;fontColor=#2980B9;fontStyle=1;exitX=0.3;exitY=1;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;" target="zone_proxmox" value="VLAN trunk (tagged)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_net_nas" edge="1" parent="1" source="zone_edge" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#B85450;strokeWidth=3;fontSize=12;fontColor=#B85450;fontStyle=1;exitX=0.85;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="zone_nas" value="VLAN-tagged on Public">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pve_nas" edge="1" parent="1" source="zone_proxmox" style="endArrow=classic;startArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=4;fontSize=13;fontColor=#1B5E20;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="zone_nas" value="NFS + SMB">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_iac_pve" edge="1" parent="1" source="zone_iac" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#9673A6;strokeWidth=3;fontSize=12;fontColor=#5C2D85;fontStyle=1;exitX=0.3;exitY=0;exitDx=0;exitDy=0;entryX=0.3;entryY=1;entryDx=0;entryDy=0;" target="zone_proxmox" value="SSH - deploy/update">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_iac_nas" edge="1" parent="1" source="zone_iac" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#9673A6;strokeWidth=1;dashed=1;dashPattern=4 4;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" target="zone_nas" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

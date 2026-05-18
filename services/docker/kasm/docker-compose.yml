@@ -1,0 +1,15 @@
+services:
+  browser-isolation:
+    build:
+      context: ./api
+    container_name: browser-isolation
+    security_opt:
+      - apparmor:unconfined
+    ports:
+      - "3000:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - BrowserIsolation__HostIp=${CT_IP}
+    restart: unless-stopped

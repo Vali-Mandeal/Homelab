@@ -1,0 +1,148 @@
+---
+- Infrastructure:
+    - Proxmox:
+        icon: proxmox.png
+        href: https://proxmox.${TRAEFIK_DOMAIN}
+        description: Proxmox VE
+        siteMonitor: https://${PROXMOX_HOST_IP}:8006
+        widget:
+          type: proxmox
+          url: https://${PROXMOX_HOST_IP}:8006
+          username: ${PROXMOX_API_USER}
+          password: ${PROXMOX_API_TOKEN_SECRET}
+          node: pve
+    - Traefik:
+        icon: traefik.png
+        href: https://traefik.${TRAEFIK_DOMAIN}
+        description: Reverse Proxy
+    - Portainer:
+        icon: portainer.png
+        href: https://portainer.${TRAEFIK_DOMAIN}
+        description: Container Management
+        siteMonitor: https://${PORTAINER_SERVER_IP}:9443
+    - Grafana:
+        icon: grafana.png
+        href: https://grafana.${TRAEFIK_DOMAIN}
+        description: Monitoring
+        siteMonitor: http://${MONITORING_CT_IP}:3001
+        widget:
+          type: grafana
+          url: http://${MONITORING_CT_IP}:3001
+          username: admin
+          password: ${GRAFANA_ADMIN_PASSWORD}
+    - Homelab Overview:
+        icon: grafana.png
+        href: https://grafana.${TRAEFIK_DOMAIN}/d/homelab-overview
+        description: Dashboard
+    - Homelab Logs:
+        icon: grafana.png
+        href: https://grafana.${TRAEFIK_DOMAIN}/d/homelab-logs/homelab-logs
+        description: Log Viewer
+    - Prometheus:
+        icon: prometheus.png
+        href: https://prometheus.${TRAEFIK_DOMAIN}
+        description: Metrics Store
+        siteMonitor: http://${MONITORING_CT_IP}:9090
+    - Alloy:
+        icon: grafana.png
+        href: https://alloy.${TRAEFIK_DOMAIN}
+        description: Monitoring Agents
+        siteMonitor: http://${MONITORING_CT_IP}:12345
+    - Cloudflare Tunnel:
+        icon: cloudflare.png
+        href: https://dash.cloudflare.com
+        description: Tunnel
+    - UNAS:
+        icon: truenas.png
+        href: https://unas.${TRAEFIK_DOMAIN}
+        description: NAS Storage
+        siteMonitor: https://${NAS_PRIVATE_IP}
+    - Nextcloud:
+        icon: nextcloud.png
+        href: https://nextcloud.${TRAEFIK_DOMAIN}
+        description: Cloud Storage
+        siteMonitor: http://${NEXTCLOUD_VM_IP}:8080
+
+- Automation:
+    - n8n:
+        icon: n8n.png
+        href: https://n8n.${TRAEFIK_DOMAIN}
+        description: Workflow Automation
+        siteMonitor: http://${N8N_CT_IP}:5678
+    - Scrapper Admin:
+        icon: docker.png
+        href: https://scrapper-admin.${TRAEFIK_DOMAIN}
+        description: Scrap Jobs & Ads
+        siteMonitor: http://${SCRAPER_CT_IP}:3000
+
+- Media:
+    - Jellyfin:
+        icon: jellyfin.png
+        href: https://jellyfin.${TRAEFIK_DOMAIN}
+        description: Media Server
+        siteMonitor: http://${JELLYFIN_CT_IP}:8096
+        widget:
+          type: jellyfin
+          url: http://${JELLYFIN_CT_IP}:8096
+          key: ${JELLYFIN_API_KEY}
+          enableNowPlaying: true
+    - Jellyseerr:
+        icon: jellyseerr.png
+        href: https://jellyseerr.${TRAEFIK_DOMAIN}
+        description: Media Requests
+        siteMonitor: http://${MEDIA_SERVER_VM_IP}:5055
+        widget:
+          type: jellyseerr
+          url: http://${MEDIA_SERVER_VM_IP}:5055
+          key: ${JELLYSEERR_API_KEY}
+
+- Downloads:
+    - Radarr:
+        icon: radarr.png
+        href: https://radarr.${TRAEFIK_DOMAIN}
+        description: Movies
+        siteMonitor: http://${MEDIA_SERVER_VM_IP}:7878
+        widget:
+          type: radarr
+          url: http://${MEDIA_SERVER_VM_IP}:7878
+          key: ${RADARR_API_KEY}
+    - Sonarr:
+        icon: sonarr.png
+        href: https://sonarr.${TRAEFIK_DOMAIN}
+        description: TV Shows
+        siteMonitor: http://${MEDIA_SERVER_VM_IP}:8989
+        widget:
+          type: sonarr
+          url: http://${MEDIA_SERVER_VM_IP}:8989
+          key: ${SONARR_API_KEY}
+    - Prowlarr:
+        icon: prowlarr.png
+        href: https://prowlarr.${TRAEFIK_DOMAIN}
+        description: Indexers
+        siteMonitor: http://${MEDIA_SERVER_VM_IP}:9696
+        widget:
+          type: prowlarr
+          url: http://${MEDIA_SERVER_VM_IP}:9696
+          key: ${PROWLARR_API_KEY}
+    - qBittorrent:
+        icon: qbittorrent.png
+        href: https://qbittorrent.${TRAEFIK_DOMAIN}
+        description: Torrent Client
+        siteMonitor: http://${MEDIA_SERVER_VM_IP}:8080
+        widget:
+          type: qbittorrent
+          url: http://${MEDIA_SERVER_VM_IP}:8080
+          username: ${QBITTORRENT_USERNAME}
+          password: ${QBITTORRENT_PASSWORD}
+
+- Network:
+    - UniFi:
+        icon: unifi.png
+        href: https://unifi.${TRAEFIK_DOMAIN}
+        description: Network Controller
+        siteMonitor: https://${GATEWAY_IP}:443
+    - Kasm:
+        icon: firefox.png
+        href: https://kasm.${TRAEFIK_DOMAIN}
+        description: Browser Isolation
+        siteMonitor: http://${KASM_CT_IP}:3000

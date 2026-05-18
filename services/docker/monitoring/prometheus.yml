@@ -1,0 +1,24 @@
+global:
+  scrape_interval: 300s
+  evaluation_interval: 600s  # Alert rules evaluate every 10m - halves Prometheus CPU vs 300s
+
+# All hosts push metrics via Alloy remote_write.
+# The --web.enable-remote-write-receiver flag accepts incoming data.
+#
+# If public VLAN firewall blocks outbound to private network in the future,
+# switch public hosts to pull model: uncomment the scrape_configs below
+# and reconfigure their Alloy agents to expose metrics instead of pushing.
+#
+# scrape_configs:
+#   - job_name: "public-vlan"
+#     scrape_interval: 60s
+#     static_configs:
+#       - targets: ["<nextcloud-vm-ip>:12345"]
+#         labels:
+#           host: "nextcloud-vm"
+#       - targets: ["<media-server-vm-ip>:12345"]
+#         labels:
+#           host: "media-server"
+#       - targets: ["<jellyfin-ct-ip>:12345"]
+#         labels:
+#           host: "jellyfin"

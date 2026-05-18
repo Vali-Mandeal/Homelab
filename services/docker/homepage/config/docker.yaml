@@ -1,0 +1,5 @@
+---
+# Uncomment to show Docker container stats
+# my-docker:
+#   host: <docker-host-ip>
+#   port: 2375

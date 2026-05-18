@@ -1,0 +1,16 @@
+services:
+  portainer:
+    image: portainer/portainer-ce:lts
+    container_name: portainer
+    security_opt:
+      - apparmor:unconfined
+    ports:
+      - "9443:9443"
+      - "8000:8000"
+    volumes:
+      - portainer_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+volumes:
+  portainer_data:

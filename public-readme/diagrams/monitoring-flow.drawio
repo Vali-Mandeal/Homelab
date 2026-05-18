@@ -1,0 +1,160 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="monitoring-flow" name="Monitoring Data Flow">
+    <mxGraphModel dx="2373" dy="1418" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="zone_sources" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4fd;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=13;fontStyle=1;verticalAlign=top;align=center;spacingTop=8;" value="Source Hosts (each runs Grafana Alloy)" vertex="1">
+          <mxGeometry height="900" width="420" x="40" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="src_proxmox" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Proxmox Host&lt;/b&gt;&lt;br&gt;10.0.10.66 (bare metal)&lt;br&gt;&lt;font color=&quot;#0066CC&quot;&gt;proxmox-agent.alloy&lt;/font&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;system metrics + temps + journal&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="380" x="60" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="src_lxc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Docker-in-LXC services&lt;/b&gt;&lt;br&gt;traefik · homepage · kasm · cloudflare-tunnel&lt;br&gt;n8n · scraper&lt;br&gt;&lt;font color=&quot;#0066CC&quot;&gt;docker-agent.alloy&lt;/font&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;system metrics + container logs + journal&lt;/span&gt;" vertex="1">
+          <mxGeometry height="110" width="380" x="60" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="src_jellyfin" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Jellyfin&lt;/b&gt; (native LXC)&lt;br&gt;10.0.20.113&lt;br&gt;&lt;font color=&quot;#0066CC&quot;&gt;jellyfin-agent.alloy&lt;/font&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;system metrics + Jellyfin app logs&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="380" x="60" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="src_nextcloud" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Nextcloud&lt;/b&gt; (VM)&lt;br&gt;10.0.20.212&lt;br&gt;&lt;font color=&quot;#0066CC&quot;&gt;nextcloud-agent.alloy&lt;/font&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;system metrics + Docker logs (NC, Postgres, Redis)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="380" x="60" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="src_media" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Media Server&lt;/b&gt; (VM)&lt;br&gt;10.0.20.211&lt;br&gt;&lt;font color=&quot;#0066CC&quot;&gt;arr-agent.alloy&lt;/font&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;system metrics + Docker logs (Media Pipeline)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="380" x="60" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="vlan_mgmt" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;fontColor=#003399;" value="↑ Management VLAN (10.0.10.x)" vertex="1">
+          <mxGeometry height="15" width="380" x="60" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="vlan_pub" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;fontColor=#884400;" value="↓ Public VLAN (10.0.20.x)" vertex="1">
+          <mxGeometry height="15" width="380" x="60" y="685" as="geometry" />
+        </mxCell>
+        <mxCell id="note_firewall" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF5E0;strokeColor=#d6b656;fontSize=10;fontColor=#664400;align=left;spacingLeft=8;spacingTop=4;" value="&lt;b&gt;Why push, not pull?&lt;/b&gt;&lt;br&gt;Public VLAN can initiate connections to Management VLAN.&lt;br&gt;Reverse direction is firewalled. So agents push outbound&lt;br&gt;rather than Prometheus scraping inbound - works in both VLANs." vertex="1">
+          <mxGeometry height="80" width="380" x="60" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="note_interval" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F0FF;strokeColor=#6c8ebf;fontSize=10;fontColor=#003399;align=left;spacingLeft=8;spacingTop=4;" value="&lt;b&gt;Scrape interval: 300s&lt;/b&gt;&lt;br&gt;Agents collect and push every 5 minutes. Trades freshness for&lt;br&gt;low overhead - homelab metrics don&#39;t need second-level resolution." vertex="1">
+          <mxGeometry height="60" width="380" x="60" y="820" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_monitoring" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=3;dashed=1;dashPattern=10 5;fontSize=14;fontStyle=1;verticalAlign=top;align=center;spacingTop=8;" value="Monitoring LXC - CT 117 · 10.0.10.117" vertex="1">
+          <mxGeometry height="780" width="860" x="900" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="receivers" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffbe6;strokeColor=#999999;strokeWidth=2;fontSize=11;align=center;dashed=0;" value="&lt;b&gt;Push receivers&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Prometheus&lt;br&gt;remote_write&lt;br&gt;&lt;font color=&quot;#884400&quot;&gt;:9090/api/v1/write&lt;/font&gt;&lt;br&gt;&lt;br&gt;Loki HTTP push&lt;br&gt;&lt;font color=&quot;#003399&quot;&gt;:3100/loki/api/v1/push&lt;/font&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="380" width="160" x="930" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="prometheus" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#E67E22;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Prometheus&lt;/b&gt; :9090&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Time-series database for metrics&lt;br&gt;Started with --web.enable-remote-write-receiver&lt;br&gt;Retention: 90d · Storage: prometheus-data volume&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="510" x="1180" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="loki" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#2980B9;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Loki&lt;/b&gt; :3100&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Log aggregation database&lt;br&gt;HTTP push endpoint accepts labelled log streams&lt;br&gt;Retention: 60d · Storage: loki-data volume&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="510" x="1180" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="grafana" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=11;align=left;spacingLeft=12;" value="&lt;b&gt;Grafana&lt;/b&gt; :3001&lt;br&gt;&lt;br&gt;• Datasources auto-provisioned (Prometheus + Loki)&lt;br&gt;• Dashboards auto-provisioned from JSON&lt;br&gt;• Alert rules auto-provisioned from YAML&lt;br&gt;• Reachable at &lt;u&gt;grafana.local.example.com&lt;/u&gt;" vertex="1">
+          <mxGeometry height="140" width="760" x="930" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="alloy_local" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;strokeWidth=1;fontSize=10;fontColor=#555555;align=center;" value="&lt;b&gt;Alloy&lt;/b&gt; :12345 - local agent for the monitoring container itself · Persistent volumes backed up nightly to NAS SSD" vertex="1">
+          <mxGeometry height="50" width="590" x="930" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="telegram" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#0088cc;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Telegram Bot API&lt;/b&gt;&lt;br&gt;api.telegram.org&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;HTTPS (outbound)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="280" x="1400" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="phone" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;📱 My phone&lt;/b&gt;&lt;br&gt;Telegram chat&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;chat_id from config.env&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="280" x="1000" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="browser" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=11;" value="&lt;b&gt;👤 Browser&lt;/b&gt;&lt;br&gt;https://grafana.local.example.com&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;Routed via Traefik on LAN&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="280" x="540" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="h_proxmox" edge="1" parent="1" source="src_proxmox" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;strokeWidth=2;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.1;entryDx=0;entryDy=0;" target="receivers" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="720" y="165" />
+              <mxPoint x="720" y="158" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h_lxc" edge="1" parent="1" source="src_lxc" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;strokeWidth=2;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" target="receivers" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="720" y="285" />
+              <mxPoint x="720" y="234" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h_jellyfin" edge="1" parent="1" source="src_jellyfin" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;strokeWidth=2;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="receivers" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="760" y="405" />
+              <mxPoint x="760" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h_nextcloud" edge="1" parent="1" source="src_nextcloud" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;strokeWidth=2;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.7;entryDx=0;entryDy=0;" target="receivers" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="800" y="515" />
+              <mxPoint x="800" y="386" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h_media" edge="1" parent="1" source="src_media" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;strokeWidth=2;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.9;entryDx=0;entryDy=0;" target="receivers" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="840" y="625" />
+              <mxPoint x="840" y="462" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="bus_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fillColor=#FFFFFF;strokeColor=#999999;" value="&lt;b&gt;Alloy push&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;every 5 min&lt;/span&gt;" vertex="1">
+          <mxGeometry height="40" width="100" x="650" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="r_prom" edge="1" parent="1" source="receivers" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#E67E22;strokeWidth=3;fontSize=11;fontStyle=1;fontColor=#884400;exitX=1;exitY=0.2;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="prometheus" value="metrics">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r_loki" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#2980B9;strokeWidth=3;fontSize=11;fontStyle=1;fontColor=#003399;dashed=1;dashPattern=8 4;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="loki" value="logs">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1090" y="440" />
+            </Array>
+            <mxPoint x="1090" y="440" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="g_prom" edge="1" parent="1" source="grafana" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=2;fontSize=10;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0.3;entryY=1;entryDx=0;entryDy=0;" target="prometheus" value="query">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1690" y="620" />
+              <mxPoint x="1740" y="620" />
+              <mxPoint x="1740" y="310" />
+              <mxPoint x="1333" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="g_loki" edge="1" parent="1" source="grafana" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=2;fontSize=10;exitX=0.7;exitY=0;exitDx=0;exitDy=0;entryX=0.7;entryY=1;entryDx=0;entryDy=0;" target="loki" value="query">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="alert_edge" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#C0392B;strokeWidth=3;fontSize=10;fontStyle=1;fontColor=#7B1414;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="telegram" value="&lt;b&gt;alert fires&lt;/b&gt;&lt;br&gt;HTTP POST">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1630" y="760" />
+              <mxPoint x="1540" y="760" />
+            </Array>
+            <mxPoint x="1630" y="680" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="phone_edge" edge="1" parent="1" source="telegram" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#0088cc;strokeWidth=2;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="phone" value="push">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1360" y="920" />
+              <mxPoint x="1360" y="920" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="user_edge" edge="1" parent="1" source="browser" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=2;fontSize=10;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="grafana" value="HTTPS (LAN)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="680" />
+              <mxPoint x="880" y="680" />
+              <mxPoint x="880" y="610" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

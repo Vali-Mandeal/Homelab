@@ -1,0 +1,23 @@
+title: Homelab Dashboard
+cardBlur: md
+theme: dark
+color: slate
+headerStyle: boxed
+hideErrors: true
+showStats: false
+stylesheet: custom.css
+layout:
+  Infrastructure:
+    style: row
+    columns: 3
+  Media:
+    style: row
+    columns: 3
+  Downloads:
+    style: row
+    columns: 3
+  Network:
+    style: row
+    columns: 3
+
+disableHostHeaderValidation: true

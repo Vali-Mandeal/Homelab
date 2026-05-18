@@ -1,0 +1,416 @@
+# Traefik Dynamic Routes
+# Traefik automatically reloads this file on changes.
+
+http:
+  middlewares:
+    https-redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
+    secure-headers:
+      headers:
+        stsSeconds: 15552000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        forceSTSHeader: true
+    api-cors:
+      headers:
+        accessControlAllowOriginList:
+          - "https://homepage.${TRAEFIK_DOMAIN}"
+        accessControlAllowMethods:
+          - "GET"
+          - "OPTIONS"
+        accessControlAllowHeaders:
+          - "Authorization"
+          - "Content-Type"
+          - "X-Requested-With"
+        addVaryHeader: true
+        accessControlAllowCredentials: true
+
+  routers:
+    # HTTP to HTTPS redirects for all services
+    http-redirect:
+      rule: "Host(`traefik.${TRAEFIK_DOMAIN}`) || Host(`proxmox.${TRAEFIK_DOMAIN}`) || Host(`unas.${TRAEFIK_DOMAIN}`) || Host(`unifi.${TRAEFIK_DOMAIN}`) || Host(`jellyfin.${TRAEFIK_DOMAIN}`) || Host(`frankenstein.${TRAEFIK_DOMAIN}`) || Host(`portainer.${TRAEFIK_DOMAIN}`) || Host(`radarr.${TRAEFIK_DOMAIN}`) || Host(`sonarr.${TRAEFIK_DOMAIN}`) || Host(`prowlarr.${TRAEFIK_DOMAIN}`) || Host(`qbittorrent.${TRAEFIK_DOMAIN}`) || Host(`jellyseerr.${TRAEFIK_DOMAIN}`) || Host(`kasm.${TRAEFIK_DOMAIN}`) || Host(`homepage.${TRAEFIK_DOMAIN}`) || Host(`nextcloud.${TRAEFIK_DOMAIN}`) || Host(`office.${TRAEFIK_DOMAIN}`) || Host(`grafana.${TRAEFIK_DOMAIN}`) || Host(`prometheus.${TRAEFIK_DOMAIN}`) || Host(`loki.${TRAEFIK_DOMAIN}`) || Host(`alloy.${TRAEFIK_DOMAIN}`) || Host(`n8n.${TRAEFIK_DOMAIN}`) || Host(`scrapper-admin.${TRAEFIK_DOMAIN}`)"
+      service: dummy-service
+      entrypoints:
+        - web
+      middlewares:
+        - https-redirect
+
+    # HTTPS services
+    traefik-api:
+      rule: "Host(`traefik.${TRAEFIK_DOMAIN}`) && PathPrefix(`/api`)"
+      service: api@internal
+      entrypoints:
+        - websecure
+      middlewares:
+        - api-cors
+      tls:
+        certResolver: cloudflare
+
+    traefik-dashboard:
+      rule: "Host(`traefik.${TRAEFIK_DOMAIN}`)"
+      service: dashboard@internal
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    proxmox:
+      rule: "Host(`proxmox.${TRAEFIK_DOMAIN}`)"
+      service: proxmox-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    unas:
+      rule: "Host(`unas.${TRAEFIK_DOMAIN}`)"
+      service: unas-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    unifi:
+      rule: "Host(`unifi.${TRAEFIK_DOMAIN}`)"
+      service: unifi-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    jellyfin:
+      rule: "Host(`jellyfin.${TRAEFIK_DOMAIN}`)"
+      service: jellyfin-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    # Portainer (centralized container management)
+    portainer:
+      rule: "Host(`portainer.${TRAEFIK_DOMAIN}`)"
+      service: portainer-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    # Frankenstein general route (for direct port access)
+    frankenstein:
+      rule: "Host(`frankenstein.${TRAEFIK_DOMAIN}`)"
+      service: frankenstein-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    # ARR Stack Services
+    radarr:
+      rule: "Host(`radarr.${TRAEFIK_DOMAIN}`)"
+      service: radarr-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    sonarr:
+      rule: "Host(`sonarr.${TRAEFIK_DOMAIN}`)"
+      service: sonarr-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    prowlarr:
+      rule: "Host(`prowlarr.${TRAEFIK_DOMAIN}`)"
+      service: prowlarr-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    qbittorrent:
+      rule: "Host(`qbittorrent.${TRAEFIK_DOMAIN}`)"
+      service: qbittorrent-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    jellyseerr:
+      rule: "Host(`jellyseerr.${TRAEFIK_DOMAIN}`)"
+      service: jellyseerr-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    kasm:
+      rule: "Host(`kasm.${TRAEFIK_DOMAIN}`)"
+      service: kasm-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    homepage:
+      rule: "Host(`homepage.${TRAEFIK_DOMAIN}`)"
+      service: homepage-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    # OnlyOffice Document Server (document editing for Nextcloud)
+    onlyoffice:
+      rule: "Host(`office.${TRAEFIK_DOMAIN}`)"
+      service: onlyoffice-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    # Grafana (Monitoring)
+    grafana:
+      rule: "Host(`grafana.${TRAEFIK_DOMAIN}`)"
+      service: grafana-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    # Prometheus
+    prometheus:
+      rule: "Host(`prometheus.${TRAEFIK_DOMAIN}`)"
+      service: prometheus-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    # Loki
+    loki:
+      rule: "Host(`loki.${TRAEFIK_DOMAIN}`)"
+      service: loki-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    # Alloy
+    alloy:
+      rule: "Host(`alloy.${TRAEFIK_DOMAIN}`)"
+      service: alloy-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    # Nextcloud
+    nextcloud:
+      rule: "Host(`nextcloud.${TRAEFIK_DOMAIN}`)"
+      service: nextcloud-service
+      entrypoints:
+        - websecure
+      middlewares:
+        - secure-headers
+      tls:
+        certResolver: cloudflare
+
+    # Docs (Docusaurus) - one router per site under docs.${TRAEFIK_DOMAIN}/<name>/.
+    # Add a new docs site by dropping a dir on the SMB share AND adding a
+    # router + service block below.
+    docs-dummy:
+      rule: "Host(`docs.${TRAEFIK_DOMAIN}`) && PathPrefix(`/dummy`)"
+      service: docs-dummy-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    docs-homelab:
+      rule: "Host(`docs.${TRAEFIK_DOMAIN}`) && PathPrefix(`/homelab`)"
+      service: docs-homelab-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    docs-performance:
+      rule: "Host(`docs.${TRAEFIK_DOMAIN}`) && PathPrefix(`/performance`)"
+      service: docs-performance-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    # n8n Workflow Automation
+    n8n:
+      rule: "Host(`n8n.${TRAEFIK_DOMAIN}`)"
+      service: n8n-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    # Scrapper Admin UI
+    scrapper-admin:
+      rule: "Host(`scrapper-admin.${TRAEFIK_DOMAIN}`)"
+      service: scrapper-admin-service
+      entrypoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+  services:
+    # Dummy service for HTTP redirects (never actually used)
+    dummy-service:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:80"
+
+    # Proxmox Service
+    proxmox-service:
+      loadBalancer:
+        servers:
+          - url: "https://${PROXMOX_HOST_IP}:8006"
+        serversTransport: insecureTransport
+
+    # Unas Service
+    unas-service:
+      loadBalancer:
+        servers:
+          - url: "https://${NAS_PRIVATE_IP}"
+        serversTransport: insecureTransport
+
+    # UniFi Service
+    unifi-service:
+      loadBalancer:
+        servers:
+          - url: "https://${GATEWAY_IP}"
+        serversTransport: insecureTransport
+
+    # Jellyfin Service
+    jellyfin-service:
+      loadBalancer:
+        servers:
+          - url: "http://${JELLYFIN_CT_IP}:8096"
+
+    # Portainer Service (centralized)
+    portainer-service:
+      loadBalancer:
+        servers:
+          - url: "https://${PORTAINER_SERVER_IP}:9443"
+        serversTransport: insecureTransport
+
+    # Frankenstein General Service (for port forwarding)
+    frankenstein-service:
+      loadBalancer:
+        servers:
+          - url: "http://${FRANKENSTEIN_IP}:80"
+
+    # ARR Stack Services
+    radarr-service:
+      loadBalancer:
+        servers:
+          - url: "http://${MEDIA_SERVER_VM_IP}:7878"
+
+    sonarr-service:
+      loadBalancer:
+        servers:
+          - url: "http://${MEDIA_SERVER_VM_IP}:8989"
+
+    prowlarr-service:
+      loadBalancer:
+        servers:
+          - url: "http://${MEDIA_SERVER_VM_IP}:9696"
+
+    qbittorrent-service:
+      loadBalancer:
+        servers:
+          - url: "http://${MEDIA_SERVER_VM_IP}:8080"
+
+    jellyseerr-service:
+      loadBalancer:
+        servers:
+          - url: "http://${MEDIA_SERVER_VM_IP}:5055"
+
+    kasm-service:
+      loadBalancer:
+        servers:
+          - url: "http://${KASM_CT_IP}:3000"
+
+    grafana-service:
+      loadBalancer:
+        servers:
+          - url: "http://${MONITORING_CT_IP}:3001"
+
+    prometheus-service:
+      loadBalancer:
+        servers:
+          - url: "http://${MONITORING_CT_IP}:9090"
+
+    loki-service:
+      loadBalancer:
+        servers:
+          - url: "http://${MONITORING_CT_IP}:3100"
+
+    alloy-service:
+      loadBalancer:
+        servers:
+          - url: "http://${MONITORING_CT_IP}:12345"
+
+    homepage-service:
+      loadBalancer:
+        servers:
+          - url: "http://${HOMEPAGE_CT_IP}:3000"
+
+    # OnlyOffice Document Server Service
+    onlyoffice-service:
+      loadBalancer:
+        servers:
+          - url: "http://${NEXTCLOUD_VM_IP}:9980"
+
+    # Nextcloud Service
+    nextcloud-service:
+      loadBalancer:
+        servers:
+          - url: "http://${NEXTCLOUD_VM_IP}:8080"
+
+    # n8n Service
+    n8n-service:
+      loadBalancer:
+        servers:
+          - url: "http://${N8N_CT_IP}:5678"
+
+    # Scrapper Admin UI
+    scrapper-admin-service:
+      loadBalancer:
+        servers:
+          - url: "http://${SCRAPER_CT_IP}:3000"
+
+    # Docs (Docusaurus) - ports follow the order generate_compose() assigns them
+    # in docs/deploy.sh: alphabetical by site name, starting at MKDOCS_PORT_START
+    # (8001). If you add or remove a docs site, recompute the ports for every
+    # site below, not just the new one.
+    docs-dummy-service:
+      loadBalancer:
+        servers:
+          - url: "http://${DOCS_CT_IP}:8001"
+
+    docs-homelab-service:
+      loadBalancer:
+        servers:
+          - url: "http://${DOCS_CT_IP}:8002"
+
+    docs-performance-service:
+      loadBalancer:
+        servers:
+          - url: "http://${DOCS_CT_IP}:8003"
+
+  serversTransports:
+    # Allows Traefik to connect to HTTPS backends with self-signed certificates
+    insecureTransport:
+      insecureSkipVerify: true

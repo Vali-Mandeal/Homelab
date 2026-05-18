@@ -1,0 +1,8 @@
+---
+- Documentation:
+    - Proxmox Docs:
+        - icon: proxmox.png
+          href: https://pve.proxmox.com/pve-docs/
+    - Traefik Docs:
+        - icon: traefik.png
+          href: https://doc.traefik.io/traefik/

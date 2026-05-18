@@ -1,0 +1,24 @@
+---
+- logo:
+    icon: /images/logo.jpg
+
+- datetime:
+    text_size: xl
+    format:
+      dateStyle: long
+      timeStyle: short
+      hour12: false
+
+- glances:
+    url: http://${PROXMOX_HOST_IP}:61208
+    version: 4
+    cpu: true
+    mem: true
+    cputemp: true
+    uptime: true
+    disk:
+      - /
+      - ${NFS_PUBLIC_MEDIA_MOUNT}
+      - ${SMB_PUBLIC_MOUNT}
+    expanded: true
+    label: Proxmox Host

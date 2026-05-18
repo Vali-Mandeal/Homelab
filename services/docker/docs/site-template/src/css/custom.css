@@ -1,0 +1,85 @@
+/* ==============================================================================
+   Homelab Docs - Custom Theme
+   ============================================================================== */
+
+:root {
+  --ifm-color-primary: #7c6af5;
+  --ifm-color-primary-dark: #6655f3;
+  --ifm-color-primary-darker: #5b49f2;
+  --ifm-color-primary-darkest: #3d2def;
+  --ifm-color-primary-light: #927ff7;
+  --ifm-color-primary-lighter: #9d8cf8;
+  --ifm-color-primary-lightest: #bdb0fb;
+
+  --ifm-code-font-size: 90%;
+  --ifm-font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ifm-heading-font-weight: 600;
+  --ifm-border-radius: 8px;
+  --docusaurus-highlighted-code-line-bg: rgba(124, 106, 245, 0.15);
+}
+
+[data-theme='dark'] {
+  --ifm-background-color: #0f0f17;
+  --ifm-background-surface-color: #16161f;
+  --ifm-navbar-background-color: #0f0f17;
+  --ifm-footer-background-color: #0a0a10;
+  --ifm-color-primary: #9b8df9;
+  --ifm-color-primary-dark: #8572f7;
+  --ifm-color-primary-darker: #7a65f7;
+  --ifm-color-primary-darkest: #5842f4;
+  --ifm-color-primary-light: #b1a8fb;
+  --ifm-color-primary-lighter: #bcb5fc;
+  --ifm-color-primary-lightest: #dcd8fe;
+  --docusaurus-highlighted-code-line-bg: rgba(155, 141, 249, 0.15);
+}
+
+/* Navbar */
+.navbar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+}
+
+[data-theme='dark'] .navbar {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Sidebar */
+[data-theme='dark'] .menu {
+  background: var(--ifm-background-surface-color);
+}
+
+.menu__link--active {
+  border-left: 2px solid var(--ifm-color-primary);
+}
+
+/* Code blocks */
+.prism-code {
+  border-radius: var(--ifm-border-radius) !important;
+  font-size: 0.88rem !important;
+}
+
+div[class*='codeBlockContainer'] {
+  border-radius: var(--ifm-border-radius);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Admonitions */
+.alert {
+  border-radius: var(--ifm-border-radius);
+  border-left-width: 4px;
+}
+
+/* Tables */
+table {
+  border-radius: var(--ifm-border-radius);
+  overflow: hidden;
+}
+
+[data-theme='dark'] table th {
+  background: rgba(124, 106, 245, 0.2);
+}
+
+/* Smooth scrollbar for sidebar */
+.theme-doc-sidebar-container {
+  scrollbar-width: thin;
+}

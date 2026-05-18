@@ -1,0 +1,66 @@
+// ==============================================================================
+// Alloy Agent - Proxmox Host
+// ==============================================================================
+// Push model: metrics → Prometheus, journal logs → Loki
+// Includes hwmon for CPU/NVMe/motherboard temperatures.
+// Requires: apt install lm-sensors && sensors-detect --auto
+// ==============================================================================
+
+// System Metrics (replaces node_exporter)
+// hwmon collector is enabled by default - reads /sys/class/hwmon/*
+// Exposes: node_hwmon_temp_celsius, node_hwmon_fan_rpm, etc.
+prometheus.exporter.unix "system" {
+  disable_collectors = ["thermal_zone"]
+}
+
+prometheus.scrape "system_metrics" {
+  scrape_interval = "300s"
+  targets         = prometheus.exporter.unix.system.targets
+  forward_to      = [prometheus.remote_write.monitoring.receiver]
+}
+
+prometheus.remote_write "monitoring" {
+  endpoint {
+    url = "http://__MONITORING_IP__:9090/api/v1/write"
+  }
+  external_labels = {
+    host = "proxmox",
+    ip   = "__IP__",
+  }
+}
+
+// Systemd Journal - captures all service logs (PVE, cron, etc.)
+loki.source.journal "systemd" {
+  forward_to = [loki.process.add_labels.receiver]
+  labels     = { source = "journal" }
+}
+
+loki.process "add_labels" {
+  stage.static_labels {
+    values = { host = "proxmox" }
+  }
+
+  // Detect severity from journal message content so logs appear in
+  // the Errors & Warnings dashboard panel (detected_level defaults to "unknown")
+  stage.match {
+    selector = `{source="journal"} |~ "(?i)(apparmor=\"DENIED\"|\\berror\\b|failed|failure|critical)"`
+    stage.static_labels {
+      values = { detected_level = "error" }
+    }
+  }
+
+  stage.match {
+    selector = `{source="journal"} |~ "(?i)\\bwarn(ing)?\\b"`
+    stage.static_labels {
+      values = { detected_level = "warn" }
+    }
+  }
+
+  forward_to = [loki.write.monitoring.receiver]
+}
+
+loki.write "monitoring" {
+  endpoint {
+    url = "http://__MONITORING_IP__:3100/loki/api/v1/push"
+  }
+}

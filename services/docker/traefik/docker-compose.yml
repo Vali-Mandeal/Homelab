@@ -1,0 +1,25 @@
+services:
+  traefik:
+    image: traefik:v3.6
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
+    command:
+      - --configfile=/etc/traefik/traefik.yml
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file:
+      - .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data:/data
+      - ./traefik.yml:/etc/traefik/traefik.yml
+    networks:
+      - traefik-net
+
+networks:
+  traefik-net:
+    driver: bridge
+    name: traefik-net

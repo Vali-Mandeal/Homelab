@@ -1,0 +1,73 @@
+// ==============================================================================
+// Alloy Agent - Nextcloud VM
+// ==============================================================================
+// Push model: metrics → Prometheus, logs → Loki
+// NOTE: When public VLAN firewall locks down outbound to private,
+// switch to pull model (Prometheus scrapes :12345) + SSH tunnel for logs.
+// ==============================================================================
+
+// System Metrics
+prometheus.exporter.unix "system" {
+  disable_collectors = ["thermal_zone"]
+}
+
+prometheus.scrape "system_metrics" {
+  scrape_interval = "300s"
+  targets         = prometheus.exporter.unix.system.targets
+  forward_to      = [prometheus.remote_write.monitoring.receiver]
+}
+
+prometheus.remote_write "monitoring" {
+  endpoint {
+    url = "http://__MONITORING_IP__:9090/api/v1/write"
+  }
+  external_labels = {
+    host = "nextcloud-vm",
+    ip   = "__IP__",
+  }
+}
+
+// Docker Container Logs (Nextcloud, PostgreSQL, Redis)
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "containers" {
+  targets = discovery.docker.containers.targets
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    target_label  = "container"
+    regex         = "/(.*)"
+  }
+}
+
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.containers.output
+  forward_to = [loki.process.add_labels.receiver]
+}
+
+// Backup & Security Update Logs
+local.file_match "backup_logs" {
+  path_targets = [
+    {"__path__" = "__LOG_PATH__"},
+  ]
+}
+
+loki.source.file "backup_logs" {
+  targets    = local.file_match.backup_logs.targets
+  forward_to = [loki.process.add_labels.receiver]
+}
+
+loki.process "add_labels" {
+  stage.static_labels {
+    values = { host = "nextcloud-vm" }
+  }
+  forward_to = [loki.write.monitoring.receiver]
+}
+
+loki.write "monitoring" {
+  endpoint {
+    url = "http://__MONITORING_IP__:3100/loki/api/v1/push"
+  }
+}

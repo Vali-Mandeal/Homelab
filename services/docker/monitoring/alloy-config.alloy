@@ -1,0 +1,84 @@
+// ==============================================================================
+// Grafana Alloy - Local Agent for Monitoring LXC (CT 117)
+// ==============================================================================
+// Collects Docker container logs and system metrics from the monitoring LXC itself.
+// Remote hosts run their own Alloy agents that push/expose to this stack.
+// ==============================================================================
+
+// ==============================================================================
+// System Metrics - DISABLED for monitoring host
+// ==============================================================================
+// The monitoring LXC is a meta-service container, not a workload host.
+// Its CPU/RAM/disk metrics are not useful in homelab health dashboards and
+// add unnecessary time series to Prometheus. Re-enable if you want to
+// track the monitoring stack's own resource usage.
+//
+// prometheus.exporter.unix "system" { ... }
+// prometheus.scrape "system_metrics" { ... }
+// prometheus.remote_write "local" { ... }
+
+// ==============================================================================
+// Docker Container Logs
+// ==============================================================================
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "containers" {
+  targets = discovery.docker.containers.targets
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    target_label  = "container"
+    regex         = "/(.*)"
+  }
+}
+
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.containers.output
+  forward_to = [loki.process.add_labels.receiver]
+}
+
+// ==============================================================================
+// System Journal - DISABLED for monitoring host
+// ==============================================================================
+// Docker container logs already capture Grafana/Loki/Prometheus/Alloy output
+// via loki.source.docker above. Tailing the journal as well causes every log
+// line to be ingested twice. The journal on this host adds no extra signal.
+//
+// loki.source.journal "system" { ... }
+
+// ==============================================================================
+// Backup Logs (file-based)
+// ==============================================================================
+
+local.file_match "backup_logs" {
+  path_targets = [
+    { __path__ = "__LOG_PATH__", source = "backup" },
+  ]
+}
+
+loki.source.file "backup_logs" {
+  targets    = local.file_match.backup_logs.targets
+  forward_to = [loki.process.add_labels.receiver]
+}
+
+// ==============================================================================
+// Label & Ship to Loki
+// ==============================================================================
+
+loki.process "add_labels" {
+  stage.static_labels {
+    values = {
+      host = "monitoring",
+    }
+  }
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

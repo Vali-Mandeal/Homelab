@@ -1,0 +1,205 @@
+{
+  "uid": "homelab-logs",
+  "title": "Homelab Logs",
+  "tags": ["homelab"],
+  "timezone": "browser",
+  "refresh": "5m",
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "host",
+        "type": "query",
+        "datasource": { "type": "loki", "uid": "loki" },
+        "query": { "type": 1, "label": "host", "stream": "" },
+        "includeAll": true,
+        "multi": true,
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "refresh": 2
+      },
+      {
+        "name": "container",
+        "type": "query",
+        "datasource": { "type": "loki", "uid": "loki" },
+        "query": { "type": 1, "label": "container", "stream": "{host=~\"$host\"}" },
+        "includeAll": true,
+        "multi": true,
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "refresh": 2
+      },
+      {
+        "name": "search",
+        "type": "textbox",
+        "current": { "selected": false, "text": "", "value": "" },
+        "label": "Search"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Log Volume by Host",
+      "type": "timeseries",
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "sum by(host) (count_over_time({host=~\"$host\"} [$__auto]))",
+          "legendFormat": "{{ host }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 50,
+            "stacking": { "mode": "normal" },
+            "lineWidth": 0
+          }
+        }
+      },
+      "options": {
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Docker Container Logs",
+      "description": "Live stdout/stderr from all Docker containers (what you see in Portainer)",
+      "type": "logs",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 5 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{host=~\"$host\", container=~\"$container\"} |~ \"$search\"",
+          "legendFormat": ""
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "dedupStrategy": "none",
+        "enableLogDetails": true
+      }
+    },
+    {
+      "id": 20,
+      "title": "Backup & Restore Logs",
+      "description": "Output from nightly backup scripts and restore operations",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 17 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{host=~\"$host\"} |~ \"(?i)(backup|restore|nightly)\"",
+          "legendFormat": ""
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "dedupStrategy": "none",
+        "enableLogDetails": true
+      }
+    },
+    {
+      "id": 30,
+      "title": "Errors & Warnings",
+      "description": "All error/warning level logs across all sources",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 27 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{host=~\"$host\"} | detected_level =~ `error|warn|critical|fatal`",
+          "legendFormat": ""
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "dedupStrategy": "none",
+        "enableLogDetails": true
+      }
+    },
+    {
+      "id": 40,
+      "title": "System Journal (Proxmox)",
+      "description": "Systemd journal logs - cron jobs, SSH, kernel, PVE services",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 37 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{source=\"journal\"} |~ \"$search\"",
+          "legendFormat": ""
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "dedupStrategy": "none",
+        "enableLogDetails": true
+      }
+    },
+    {
+      "id": 50,
+      "title": "Docker Container Events",
+      "description": "Container start/stop/restart/die events",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 47 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{host=~\"$host\"} |~ \"(?i)(container.*(start|stop|die|kill|restart|create|destroy|health)|docker.*(up|down|pull|recreat))\"",
+          "legendFormat": ""
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "dedupStrategy": "none",
+        "enableLogDetails": true
+      }
+    },
+    {
+      "id": 60,
+      "title": "Security & Auth (Proxmox)",
+      "description": "SSH logins, sudo commands, failed authentication attempts",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 57 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{source=\"journal\"} |~ \"(?i)(sshd|sudo|authentication|authorized|login|session opened|session closed|failed password|invalid user)\"",
+          "legendFormat": ""
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "dedupStrategy": "none",
+        "enableLogDetails": true
+      }
+    }
+  ],
+  "schemaVersion": 39
+}

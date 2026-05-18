@@ -1,0 +1,410 @@
+apiVersion: 1
+
+# ==============================================================================
+# Contact Points
+# ==============================================================================
+contactPoints:
+  - orgId: 1
+    name: telegram
+    receivers:
+      - uid: telegram-bot
+        type: telegram
+        settings:
+          bottoken: "__TELEGRAM_BOT_TOKEN__"
+          chatid: "__TELEGRAM_CHAT_ID__"
+          parse_mode: HTML
+        disableResolveMessage: false
+
+# ==============================================================================
+# Mute Timings
+# ==============================================================================
+muteTimes:
+  - orgId: 1
+    name: nighttime
+    time_intervals:
+      - times:
+          - start_time: "22:00"
+            end_time: "24:00"
+        location: Europe/Bucharest
+      - times:
+          - start_time: "00:00"
+            end_time: "09:00"
+        location: Europe/Bucharest
+
+# ==============================================================================
+# Notification Policies
+# ==============================================================================
+policies:
+  - orgId: 1
+    receiver: telegram
+    group_by: ["alertname", "host"]
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 4h
+    routes:
+      # Critical alerts - always deliver, even at night
+      - receiver: telegram
+        matchers:
+          - severity = critical
+        group_wait: 10s
+        group_interval: 5m
+        repeat_interval: 4h
+      # Warning alerts - muted at night (22:00–09:00)
+      - receiver: telegram
+        matchers:
+          - severity = warning
+        mute_time_intervals:
+          - nighttime
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h
+
+# ==============================================================================
+# Alert Rules
+# ==============================================================================
+groups:
+  # ============================================================================
+  # Host Health
+  # ============================================================================
+  - orgId: 1
+    name: Host Health
+    folder: Homelab
+    interval: 300s
+    rules:
+      - uid: host-down
+        title: Host Down
+        condition: C
+        for: 5m
+        annotations:
+          summary: "{{ $labels.host }} is unreachable"
+          description: "Host {{ $labels.host }} has not reported metrics for 5 minutes."
+        labels:
+          severity: critical
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            model:
+              expr: up{job="integrations/unix"}
+              instant: true
+              refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [1]
+              refId: C
+
+  # ============================================================================
+  # CPU
+  # ============================================================================
+  - orgId: 1
+    name: CPU
+    folder: Homelab
+    interval: 300s
+    rules:
+      - uid: cpu-high
+        title: CPU Usage High
+        condition: C
+        for: 10m
+        annotations:
+          summary: "{{ $labels.host }} CPU above 90%"
+          description: "CPU usage on {{ $labels.host }} has been above 90% for 10 minutes."
+        labels:
+          severity: warning
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            model:
+              expr: 100 - (avg by(host) (rate(node_cpu_seconds_total{mode="idle"}[10m])) * 100)
+              instant: true
+              refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [90]
+              refId: C
+
+  # ============================================================================
+  # Memory
+  # ============================================================================
+  - orgId: 1
+    name: Memory
+    folder: Homelab
+    interval: 300s
+    rules:
+      - uid: ram-high
+        title: RAM Usage High
+        condition: C
+        for: 5m
+        annotations:
+          summary: "{{ $labels.host }} RAM above 90%"
+          description: "Memory usage on {{ $labels.host }} has been above 90% for 5 minutes."
+        labels:
+          severity: warning
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            model:
+              expr: 100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)
+              instant: true
+              refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [90]
+              refId: C
+
+  # ============================================================================
+  # Disk
+  # ============================================================================
+  - orgId: 1
+    name: Disk
+    folder: Homelab
+    interval: 300s
+    rules:
+      - uid: disk-warning
+        title: Disk Space Low (Warning)
+        condition: C
+        for: 5m
+        annotations:
+          summary: "{{ $labels.host }} disk {{ $labels.mountpoint }} below 20% free"
+          description: "Filesystem {{ $labels.mountpoint }} on {{ $labels.host }} has less than 20% free space."
+        labels:
+          severity: warning
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            model:
+              expr: (node_filesystem_avail_bytes{mountpoint="/", fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{mountpoint="/", fstype!~"tmpfs|overlay"}) * 100
+              instant: true
+              refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [20]
+              refId: C
+
+      - uid: disk-critical
+        title: Disk Space Low (Critical)
+        condition: C
+        for: 5m
+        annotations:
+          summary: "{{ $labels.host }} disk {{ $labels.mountpoint }} below 10% free"
+          description: "Filesystem {{ $labels.mountpoint }} on {{ $labels.host }} has less than 10% free space. Immediate action required."
+        labels:
+          severity: critical
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            model:
+              expr: (node_filesystem_avail_bytes{mountpoint="/", fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{mountpoint="/", fstype!~"tmpfs|overlay"}) * 100
+              instant: true
+              refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [10]
+              refId: C
+
+  # ============================================================================
+  # Temperature (Proxmox host only)
+  # ============================================================================
+  - orgId: 1
+    name: Temperature
+    folder: Homelab
+    interval: 300s
+    rules:
+      - uid: temp-warning
+        title: Temperature High (Warning)
+        condition: C
+        for: 5m
+        annotations:
+          summary: "{{ $labels.host }} sensor {{ $labels.sensor }} at {{ $value }}°C"
+          description: "Temperature on {{ $labels.host }} ({{ $labels.chip }}/{{ $labels.sensor }}) has exceeded 75°C."
+        labels:
+          severity: warning
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            model:
+              expr: node_hwmon_temp_celsius
+              instant: true
+              refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [75]
+              refId: C
+
+      - uid: temp-critical
+        title: Temperature Critical
+        condition: C
+        for: 2m
+        annotations:
+          summary: "{{ $labels.host }} sensor {{ $labels.sensor }} at {{ $value }}°C - CRITICAL"
+          description: "Temperature on {{ $labels.host }} ({{ $labels.chip }}/{{ $labels.sensor }}) has exceeded 85°C. Risk of thermal throttling or hardware damage."
+        labels:
+          severity: critical
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            model:
+              expr: node_hwmon_temp_celsius
+              instant: true
+              refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [85]
+              refId: C
+
+  # ============================================================================
+  # Backup Failures (log-based)
+  # ============================================================================
+  - orgId: 1
+    name: Backups
+    folder: Homelab
+    interval: 300s
+    rules:
+      - uid: backup-failure
+        title: Backup Failed
+        condition: C
+        noDataState: OK
+        for: 0s
+        annotations:
+          summary: "Backup failure on {{ $labels.host }} ({{ $labels.filename }})"
+          description: "Backup script on {{ $labels.host }} logged an [ERROR]. Check log file: {{ $labels.filename }}"
+        labels:
+          severity: critical
+        data:
+          - refId: A
+            datasourceUid: loki
+            queryType: "range"
+            model:
+              expr: 'count_over_time({host=~".+", filename=~".*/logs/backup_.*\\.log"} |= "[ERROR]" [15m])'
+              instant: false
+              refId: A
+            relativeTimeRange:
+              from: 900
+              to: 0
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C

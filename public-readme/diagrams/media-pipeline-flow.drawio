@@ -1,0 +1,176 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="Media Pipeline-flow" name="Media Pipeline Flow">
+    <mxGraphModel dx="2711" dy="1620" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1300" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="user" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=11;" value="&lt;b&gt;👤 User&lt;/b&gt;&lt;br&gt;Browser on LAN&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;jellyseerr.local.example.com&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="220" x="40" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="user_play" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=11;" value="&lt;b&gt;👤 User&lt;/b&gt;&lt;br&gt;Jellyfin client (TV / phone)&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;jellyfin.local.example.com&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="220" x="30" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_vm" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4fd;strokeColor=#6c8ebf;strokeWidth=3;dashed=1;dashPattern=10 5;fontSize=14;fontStyle=1;verticalAlign=top;align=center;spacingTop=8;" value="Media Server VM - 10.0.20.211 · Public VLAN · /opt/arr (Docker Compose)" vertex="1">
+          <mxGeometry height="1180" width="1080" x="320" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="jellyseerr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Jellyseerr&lt;/b&gt; :5055&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Request UI&lt;br&gt;Forwards approved requests&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="220" x="360" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="sonarr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#2980B9;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Sonarr&lt;/b&gt; :8989&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;TV automation&lt;br&gt;DB: /opt/arr/databases/sonarr&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="240" x="660" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="radarr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#2980B9;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Radarr&lt;/b&gt; :7878&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Movie automation&lt;br&gt;DB: /opt/arr/databases/radarr&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="240" x="660" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="prowlarr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673A6;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Prowlarr&lt;/b&gt; :9696&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Indexer aggregator&lt;br&gt;Single source of indexers&lt;br&gt;Syncs settings → Sonarr/Radarr&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="240" x="1030" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="indexers" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#B85450;strokeWidth=2;fontSize=11;dashed=1;" value="&lt;b&gt;Public/Private Indexers&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;Torrent trackers / DHT&lt;br&gt;(external)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="220" x="1480" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_gluetun" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6E6;strokeColor=#B85450;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=11;fontStyle=1;verticalAlign=top;align=center;spacingTop=6;" value="Gluetun (VPN namespace) - qBittorrent shares this netns" vertex="1">
+          <mxGeometry height="200" width="700" x="660" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="gluetun" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#B85450;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Gluetun&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;WireGuard VPN provider&lt;br&gt;VPN exit · port forwarding&lt;br&gt;NET_ADMIN cap · /dev/net/tun&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="280" x="690" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="qbittorrent" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#2980B9;strokeWidth=2;fontSize=11;" value="&lt;b&gt;qBittorrent&lt;/b&gt; :8080 (via Gluetun)&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;network_mode: service:gluetun&lt;br&gt;Peer port :50413 forwarded by VPN&lt;br&gt;All traffic exits through WireGuard&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="320" x="1020" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="vpn_exit" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#B85450;strokeWidth=2;fontSize=11;dashed=1;" value="&lt;b&gt;WireGuard VPN provider&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;WireGuard tunnel&lt;br&gt;(external)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="220" x="1480" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_storage" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#999999;strokeWidth=2;dashed=1;dashPattern=6 4;fontSize=12;fontStyle=1;verticalAlign=top;align=center;spacingTop=6;" value="Storage on the VM" vertex="1">
+          <mxGeometry height="380" width="1000" x="360" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="local_dbs" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Local SSD&lt;/b&gt; (VM disk)&lt;br&gt;/opt/arr/databases/&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;sonarr · radarr · prowlarr&lt;br&gt;jellyseerr · qbittorrent&lt;br&gt;(SQLite - kept off NAS for speed)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="140" width="280" x="380" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="nfs_media" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;NFS mount&lt;/b&gt; - /mnt/media&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;NAS @ 10.0.20.100&lt;br&gt;video/movies · video/series · music&lt;br&gt;downloads/incomplete · downloads/complete&lt;/span&gt;" vertex="1">
+          <mxGeometry height="140" width="320" x="700" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="smb_backups" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;SMB mount&lt;/b&gt; - /mnt/backups&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;NAS @ 10.0.20.100 (SSD share)&lt;br&gt;arr/{radarr,sonarr,...}/backups/&lt;br&gt;arr/logs/&lt;/span&gt;" vertex="1">
+          <mxGeometry height="140" width="280" x="1060" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="cron_backup" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF5E0;strokeColor=#d6b656;strokeWidth=2;fontSize=11;align=center;" value="&lt;b&gt;Cron @ 02:00&lt;/b&gt;&lt;br&gt;nightly-backup.sh&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Stops containers · tar.gz each DB dir → SMB · 7-day retention · restarts&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="960" x="380" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="alloy_note" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;strokeWidth=1;fontSize=10;fontColor=#555555;align=center;" value="&lt;b&gt;arr-agent.alloy&lt;/b&gt; - system metrics + Docker logs → Monitoring LXC (push, every 5min)" vertex="1">
+          <mxGeometry height="40" width="960" x="380" y="910" as="geometry" />
+        </mxCell>
+        <mxCell id="jellyfin" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673A6;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Jellyfin&lt;/b&gt; (separate native LXC, public VLAN)&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Reads same NFS share (read-only)&lt;br&gt;jellyfin.local.example.com&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="380" x="360" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="e_user_seerr" edge="1" parent="1" source="user" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=2;fontSize=10;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="jellyseerr" value="&lt;b&gt;1. request&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_seerr_sonarr" edge="1" parent="1" source="jellyseerr" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;strokeWidth=2;fontSize=10;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="sonarr" value="&lt;b&gt;2a. TV&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_seerr_radarr" edge="1" parent="1" source="jellyseerr" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;strokeWidth=2;fontSize=10;exitX=1;exitY=0.7;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="radarr" value="&lt;b&gt;2b. movies&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sonarr_prowlarr" edge="1" parent="1" source="sonarr" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#9673A6;strokeWidth=2;fontSize=10;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" target="prowlarr" value="&lt;b&gt;3. search release&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_radarr_prowlarr" edge="1" parent="1" source="radarr" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#9673A6;strokeWidth=2;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.7;entryDx=0;entryDy=0;" target="prowlarr" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_prowlarr_indexers" edge="1" parent="1" source="prowlarr" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#B85450;strokeWidth=2;fontSize=10;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="indexers" value="&lt;b&gt;4. fan-out query&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sonarr_qbit" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#2980B9;strokeWidth=3;fontSize=10;fontStyle=1;entryX=0.812;entryY=-0.007;entryDx=0;entryDy=0;entryPerimeter=0;" target="qbittorrent" value="&lt;b&gt;5. send torrent&lt;/b&gt;">
+          <mxGeometry relative="1" x="0.1183" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="950" y="150" />
+              <mxPoint x="950" y="255" />
+              <mxPoint x="1280" y="255" />
+              <mxPoint x="1280" y="359" />
+              <mxPoint x="1280" y="359" />
+            </Array>
+            <mxPoint x="900" y="150" as="sourcePoint" />
+            <mxPoint x="1281.76" y="359.03999999999996" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_radarr_qbit" edge="1" parent="1" source="radarr" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#2980B9;strokeWidth=3;fontSize=10;exitX=1.002;exitY=0.819;exitDx=0;exitDy=0;entryX=0.6;entryY=0;entryDx=0;entryDy=0;exitPerimeter=0;" target="qbittorrent" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="900" y="260" />
+              <mxPoint x="900" y="260" />
+              <mxPoint x="900" y="290" />
+              <mxPoint x="1212" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_qbit_gluetun" edge="1" parent="1" source="qbittorrent" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#B85450;strokeWidth=2;fontSize=9;dashed=1;dashPattern=4 4;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="gluetun" value="netns share">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_gluetun_vpn" edge="1" parent="1" source="qbittorrent" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#B85450;strokeWidth=3;fontSize=10;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="vpn_exit" value="&lt;b&gt;6. WireGuard&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_qbit_nfs" edge="1" parent="1" source="qbittorrent" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=3;fontSize=10;fontStyle=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" value="&lt;b&gt;7. write to /downloads&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1180" y="570" />
+              <mxPoint x="950" y="570" />
+              <mxPoint x="950" y="650" />
+            </Array>
+            <mxPoint x="950" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_sonarr_nfs" edge="1" parent="1" source="sonarr" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=3;fontSize=10;exitX=0.001;exitY=0.891;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="660" y="160" />
+              <mxPoint x="590" y="160" />
+              <mxPoint x="590" y="560" />
+              <mxPoint x="740" y="560" />
+            </Array>
+            <mxPoint x="740" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_apps_dbs" edge="1" parent="1" source="prowlarr" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=1;fontSize=9;dashed=1;dashPattern=4 4;exitX=0.2;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="local_dbs" value="SQLite r/w">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1078" y="310" />
+              <mxPoint x="520" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_cron_dbs" edge="1" parent="1" source="cron_backup" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;fontSize=9;exitX=0.1;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="local_dbs" value="read">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_cron_smb" edge="1" parent="1" source="cron_backup" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;fontSize=9;exitX=0.9;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="smb_backups" value="tar.gz">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_jellyfin_nfs" edge="1" parent="1" source="jellyfin" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#9673A6;strokeWidth=3;fontSize=10;fontStyle=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="nfs_media" value="&lt;b&gt;9. read library (RO)&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="550" y="1030" />
+              <mxPoint x="340" y="1030" />
+              <mxPoint x="340" y="580" />
+              <mxPoint x="680" y="580" />
+              <mxPoint x="680" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_user_jellyfin" edge="1" parent="1" source="user_play" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#9673A6;strokeWidth=2;fontSize=10;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="jellyfin" value="&lt;b&gt;10. stream&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_radarr_nfs" edge="1" parent="1" source="radarr" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=3;fontSize=10;fontStyle=1;exitX=0.009;exitY=0.926;exitDx=0;exitDy=0;exitPerimeter=0;" value="&lt;b&gt;8. import / rename&lt;/b&gt;">
+          <mxGeometry relative="1" x="-0.0031" y="-20" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="662" y="260" />
+              <mxPoint x="620" y="260" />
+              <mxPoint x="620" y="540" />
+              <mxPoint x="780" y="540" />
+            </Array>
+            <mxPoint x="780" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

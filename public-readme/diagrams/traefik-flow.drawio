@@ -1,0 +1,186 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="traefik-flow" name="Traefik Routing Flow">
+    <mxGraphModel dx="1356" dy="810" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="zone_dns" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7e0;strokeColor=#d6b656;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=12;fontStyle=1;verticalAlign=top;align=center;spacingTop=6;" value="DNS resolution (split-horizon)" vertex="1">
+          <mxGeometry height="160" width="1080" x="60" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_acme" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#E67E22;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=12;fontStyle=1;verticalAlign=top;align=center;spacingTop=6;" value="Cloudflare DNS API + Let&#39;s Encrypt (ACME)" vertex="1">
+          <mxGeometry height="550" width="500" x="1540" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_backends" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=12;fontStyle=1;verticalAlign=top;align=center;spacingTop=6;" value="Backend services (routed by Host header - TLS already terminated at Traefik)" vertex="1">
+          <mxGeometry height="380" width="1910" x="100" y="1040" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_traefik" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4fd;strokeColor=#2980B9;strokeWidth=3;dashed=1;dashPattern=10 5;fontSize=13;fontStyle=1;verticalAlign=top;align=center;spacingTop=8;" value="Traefik - Docker-in-LXC · CT ab · 10.0.10.ab" vertex="1">
+          <mxGeometry height="550" width="1400" x="60" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="browser" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Browser on LAN&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;any *.local.example.com hostname&lt;br&gt;e.g. homepage.local.example.com&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="280" x="600" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ann_dns_challenge" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF5E0;strokeColor=#d6b656;fontSize=10;fontColor=#664400;align=left;spacingLeft=8;spacingTop=4;" value="&lt;b&gt;Why DNS-01, not HTTP-01?&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;DNS-01 issues wildcard certs and works without&lt;br&gt;exposing port 80 to the internet - so it works fine for&lt;br&gt;a LAN-only domain. HTTP-01 would need&lt;br&gt;public reachability.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="500" x="1540" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="unifi_dns" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;UniFi Gateway DNS&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Wildcard A record&lt;br&gt;*.local.example.com → 10.0.10.ab&lt;br&gt;LAN clients only - never reaches public DNS&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="400" x="100" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="cf_dns" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Cloudflare DNS&lt;/b&gt; (public, for ACME)&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Holds public records for example.com&lt;br&gt;Used by Let&#39;s Encrypt to verify _acme-challenge TXT records&lt;br&gt;&lt;font color=&quot;#884400&quot;&gt;Public *.example.com routes via Cloudflare Tunnel CT 111 - not Traefik&lt;/font&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="410" x="710" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="entrypoint_80" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;strokeWidth=1;fontSize=11;fontColor=#555555;" value="&lt;b&gt;:80 web entrypoint&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;cleartext HTTP&lt;br&gt;→ 301 redirect to :443 via https-redirect middleware&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="320" x="120" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="ann_dns_split" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#664400;fontStyle=2;" value="&lt;b&gt;Split-horizon DNS&lt;/b&gt; - *.local.example.com is LAN-only (UniFi). The same name is unresolvable from the public internet, which is exactly the point: only LAN clients can reach Traefik." vertex="1">
+          <mxGeometry height="30" width="1040" x="40" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="entrypoint_443" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=3;fontSize=11;" value="&lt;b&gt;:443 websecure entrypoint&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;TLS termination using ACME-issued wildcard cert&lt;br&gt;decrypted request passed to the router&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="380" x="540" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="router" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#2980B9;strokeWidth=3;fontSize=12;align=left;spacingLeft=12;spacingTop=8;" value="&lt;b&gt;Traefik router&lt;/b&gt; (image: &lt;b&gt;traefik:v3.6&lt;/b&gt;)&lt;br&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Matches incoming request to a router rule by &lt;b&gt;Host header&lt;/b&gt;&lt;br&gt;then applies any attached middleware chain, then forwards to the matched service.&lt;br&gt;&lt;br&gt;Examples:&lt;br&gt;Host(`homepage.local.example.com`)        →  homepage-service        →  http://10.0.10.ax:3000&lt;br&gt;Host(`docs.local.example.com`) &amp;amp;&amp;amp; PathPrefix(`/homelab`)  →  docs-homelab-service  →  http://10.0.10.az:8002&lt;br&gt;Host(`proxmox.local.example.com`)         →  proxmox-service          →  https://10.0.10.ay:8006&amp;nbsp;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="180" width="1300" x="120" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="static_cfg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffbe6;strokeColor=#999999;strokeWidth=1;fontSize=11;align=left;spacingLeft=8;spacingTop=4;" value="&lt;b&gt;traefik.yml&lt;/b&gt; (static - restart to apply)&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;• entryPoints: web :80, websecure :443&lt;br&gt;• certificatesResolvers.cloudflare (DNS-01, email + token)&lt;br&gt;• providers.file watch=true - points at /data/routes.yml&lt;br&gt;• providers.docker (configured, currently unused - all routes via routes.yml)&lt;br&gt;• api.dashboard=true · log.level=INFO&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="420" x="120" y="780" as="geometry" />
+        </mxCell>
+        <mxCell id="middlewares" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffbe6;strokeColor=#9673A6;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;spacingTop=4;" value="&lt;b&gt;http.middlewares&lt;/b&gt; (in routes.yml)&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;&lt;b&gt;https-redirect&lt;/b&gt;&amp;nbsp;- :80 → 301 :443 (attached to http-redirect router)&lt;br&gt;&lt;b&gt;secure-headers&lt;/b&gt;&amp;nbsp;- HSTS (1 yr, preload, includeSubdomains) - only on nextcloud&lt;br&gt;&lt;b&gt;api-cors&lt;/b&gt;&amp;nbsp;- allow https://homepage.local.example.com to call traefik api@internal (GET/OPTIONS, with creds)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="430" x="560" y="780" as="geometry" />
+        </mxCell>
+        <mxCell id="dynamic_cfg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffbe6;strokeColor=#27AE60;strokeWidth=2;fontSize=11;align=left;spacingLeft=8;spacingTop=4;" value="&lt;b&gt;data/routes.yml&lt;/b&gt; (dynamic - hot reload, no restart)&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;• http.routers - 23 host-rules across 12 backends&lt;br&gt;• http.services - backend URLs (Mgmt-VLAN HTTP, Public-VLAN HTTP, infra HTTPS+insecureSkipVerify)&lt;br&gt;• http.middlewares - see middlewares box&lt;br&gt;&lt;br&gt;Push via update-services.sh → traefik (envsubst then pct push)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="410" x="1010" y="780" as="geometry" />
+        </mxCell>
+        <mxCell id="acme" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffeacc;strokeColor=#E67E22;strokeWidth=2;fontSize=11;" value="&lt;b&gt;ACME client&lt;/b&gt; (built into Traefik)&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Cert resolver: cloudflare · DNS-01 challenge&lt;br&gt;Stores certs in /data/acme.json (chmod 600)&lt;br&gt;Auto-renews &lt;30d before expiry&lt;br&gt;No inbound port needed&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="420" x="1580" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="cf_api" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffeacc;strokeColor=#E67E22;strokeWidth=2;fontSize=11;" value="&lt;b&gt;api.cloudflare.com&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Receives _acme-challenge TXT record&lt;br&gt;Auth via CF_DNS_API_TOKEN env var&lt;br&gt;(scoped: Zone.DNS edit only)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="420" x="1580" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="le" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffeacc;strokeColor=#E67E22;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Let&#39;s Encrypt CA&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Verifies the TXT record via public DNS&lt;br&gt;Issues wildcard cert: *.local.example.com&lt;br&gt;Cert valid 90 days - Traefik renews unattended&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="420" x="1580" y="780" as="geometry" />
+        </mxCell>
+        <mxCell id="bus_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;fontStyle=1;fillColor=#FFFFFF;strokeColor=#27AE60;strokeWidth=2;" value="&lt;b&gt;(4) Forward as plain HTTP&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Host header preserved · TLS terminated at Traefik · backend speaks cleartext over LAN&lt;/span&gt;" vertex="1">
+          <mxGeometry height="40" width="600" x="700" y="960" as="geometry" />
+        </mxCell>
+        <mxCell id="row1_label" parent="1" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;fontColor=#666666;" value="&lt;b&gt;Management VLAN - 10.0.10.0/24&lt;/b&gt;" vertex="1">
+          <mxGeometry height="20" width="400" x="120" y="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="be_homepage" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=10;" value="&lt;b&gt;homepage&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;CT ba · :3000&lt;br&gt;10.0.10.ba&lt;br&gt;homepage.local.example.com&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="290" x="120" y="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="be_monitoring" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=10;" value="&lt;b&gt;monitoring stack&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;CT 117 - 10.0.10.bb&lt;br&gt;grafana :3001 · prometheus :9090&lt;br&gt;loki :3100 · alloy :12345&lt;br&gt;{grafana,prometheus,loki,alloy}.local.example.com&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="290" x="430" y="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="be_n8n" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=10;" value="&lt;b&gt;n8n&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;CT bc · :5678&lt;br&gt;10.0.10.bc&lt;br&gt;n8n.local.example.com&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="290" x="740" y="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="be_kasm" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=10;" value="&lt;b&gt;kasm&lt;/b&gt; (BrowserIsolation)&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;CT bd · :3000&lt;br&gt;10.0.10.bd&lt;br&gt;kasm.local.example.com&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="290" x="1050" y="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="be_scraper" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=10;" value="&lt;b&gt;scrapper-admin&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;CT be · :3000 (UI)&lt;br&gt;10.0.10.be&lt;br&gt;scrapper-admin.local.example.com&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="290" x="1360" y="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="be_docs" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=10;" value="&lt;b&gt;docs&lt;/b&gt; (PathPrefix routing)&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;CT bf - 10.0.10.bf&lt;br&gt;docs.local.example.com/dummy :8001&lt;br&gt;docs.local.example.com/homelab :8002&lt;br&gt;docs.local.example.com/performance :8003&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="290" x="1670" y="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="row2_label" parent="1" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;fontColor=#666666;" value="&lt;b&gt;Public VLAN - 10.0.20.0/24&lt;/b&gt;  ·  Infrastructure UIs (mixed)" vertex="1">
+          <mxGeometry height="20" width="600" x="120" y="1240" as="geometry" />
+        </mxCell>
+        <mxCell id="be_jellyfin" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=10;" value="&lt;b&gt;jellyfin&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;native LXC · :8096&lt;br&gt;10.0.20.bg&lt;br&gt;jellyfin.local.example.com&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="290" x="120" y="1270" as="geometry" />
+        </mxCell>
+        <mxCell id="be_nextcloud" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=10;" value="&lt;b&gt;nextcloud&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;VM bf · :8080&lt;br&gt;10.0.20.bf&lt;br&gt;nextcloud.local.example.com&lt;br&gt;(uses secure-headers middleware)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="290" x="430" y="1270" as="geometry" />
+        </mxCell>
+        <mxCell id="be_onlyoffice" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=10;" value="&lt;b&gt;onlyoffice&lt;/b&gt; (Document Server)&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;same VM bg · :9980&lt;br&gt;10.0.20.bg&lt;br&gt;office.local.example.com&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="290" x="740" y="1270" as="geometry" />
+        </mxCell>
+        <mxCell id="be_arr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=10;" value="&lt;b&gt;Media Pipeline&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;VM bh - 10.0.20.bh&lt;br&gt;radarr :7878 · sonarr :8989&lt;br&gt;prowlarr :9696 · qbittorrent :8080&lt;br&gt;jellyseerr :5055&lt;br&gt;{radarr,sonarr,prowlarr,qbittorrent,jellyseerr}.local.example.com&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="290" x="1050" y="1270" as="geometry" />
+        </mxCell>
+        <mxCell id="be_infra" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=10;" value="&lt;b&gt;infra UIs&lt;/b&gt; (HTTPS · insecureSkipVerify)&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;proxmox.local → 10.0.10.bi:8006&lt;br&gt;unifi.local → gateway:443&lt;br&gt;unas.local → NAS_PRIVATE_IP:443&lt;br&gt;portainer.local → 10.0.10.X:9443&lt;br&gt;traefik.local → api@internal · dashboard@internal&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="290" x="1360" y="1270" as="geometry" />
+        </mxCell>
+        <mxCell id="be_frankenstein" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=10;" value="&lt;b&gt;frankenstein&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;general-purpose port-forward host&lt;br&gt;FRANKENSTEIN_IP:80&lt;br&gt;frankenstein.local.example.com&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="290" x="1670" y="1270" as="geometry" />
+        </mxCell>
+        <mxCell id="e_dns_query" edge="1" parent="1" source="browser" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontColor=#1B4F8C;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="unifi_dns" value="(1) DNS query">
+          <mxGeometry relative="1" x="-0.3022" as="geometry">
+            <mxPoint x="1" as="offset" />
+            <Array as="points">
+              <mxPoint x="300" y="80" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_https" edge="1" parent="1" source="browser" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=3;fontSize=11;fontStyle=1;fontColor=#1B5E20;entryX=1;entryY=0.25;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="entrypoint_443" value="(2) HTTPS to 10.0.10.ab:443">
+          <mxGeometry relative="1" x="-0.699" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1180" y="80" />
+              <mxPoint x="1180" y="450" />
+            </Array>
+            <mxPoint x="690" y="120" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_redirect" edge="1" parent="1" source="entrypoint_80" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#999999;strokeWidth=1;fontSize=10;fontColor=#666666;dashed=1;dashPattern=6 3;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="entrypoint_443" value="https-redirect (middleware)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_to_router" edge="1" parent="1" source="entrypoint_443" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#2980B9;strokeWidth=3;fontSize=11;fontStyle=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" value="(3) Match Host header">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="730" y="560" />
+            </Array>
+            <mxPoint x="730" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_static_load" edge="1" parent="1" source="static_cfg" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#999999;strokeWidth=1;fontSize=10;fontColor=#666666;exitX=0.465;exitY=0.016;exitDx=0;exitDy=0;entryX=0.15;entryY=1;entryDx=0;entryDy=0;exitPerimeter=0;" target="router" value="loaded at startup">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_mw_load" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#9673A6;strokeWidth=2;fontSize=10;fontColor=#5C2D85;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="router" value="middleware chain">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="770" y="780" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_dynamic_load" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=2;fontSize=10;fontColor=#1B5E20;entryX=0.85;entryY=1;entryDx=0;entryDy=0;" target="router" value="watch=true · hot reload">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1225" y="780" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_acme_cf" edge="1" parent="1" source="acme" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#E67E22;strokeWidth=2;fontSize=10;fontColor=#884400;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="cf_api" value="(a) Set _acme-challenge TXT">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_cf_le" edge="1" parent="1" source="cf_api" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#E67E22;strokeWidth=2;fontSize=10;fontColor=#884400;dashed=1;dashPattern=6 3;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="le" value="(b) LE checks public DNS">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_le_cert" edge="1" parent="1" source="le" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#E67E22;strokeWidth=2;fontSize=10;fontColor=#884400;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="acme" value="(c) wildcard cert → acme.json">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1550" y="830" />
+              <mxPoint x="1550" y="520" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_acme_tls" edge="1" parent="1" source="acme" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#E67E22;strokeWidth=2;fontSize=10;fontColor=#884400;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="entrypoint_443" value="serves TLS cert">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1580" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_to_backends" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=4;fontSize=12;fontStyle=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="bus_label" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1000" y="740" />
+            </Array>
+            <mxPoint x="1000" y="740" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_bus_to_zone" edge="1" parent="1" source="bus_label" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=4;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.471;entryY=-0.001;entryDx=0;entryDy=0;entryPerimeter=0;" target="zone_backends" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#cccccc;strokeWidth=1;fontSize=10;align=center;" value="&lt;b&gt;Legend&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;&lt;font color=&quot;#27AE60&quot;&gt;━&lt;/font&gt; HTTPS / TLS path (user-facing)  ·  &lt;font color=&quot;#2980B9&quot;&gt;━&lt;/font&gt; Traefik internals (host-header match)  ·  &lt;font color=&quot;#9673A6&quot;&gt;━&lt;/font&gt; Middleware application&lt;br&gt;&lt;font color=&quot;#E67E22&quot;&gt;━&lt;/font&gt; ACME / Let&#39;s Encrypt cert lifecycle  ·  &lt;font color=&quot;#6c8ebf&quot;&gt;━&lt;/font&gt; DNS resolution  ·  &lt;font color=&quot;#666666&quot;&gt;┄&lt;/font&gt; dashed = redirect / verification step&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="500" x="1540" y="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

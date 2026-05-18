@@ -1,0 +1,101 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="scraper-flow" name="Scraper Data Flow">
+    <mxGraphModel dx="1898" dy="2334" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="zone_ct121" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=3;dashed=1;dashPattern=10 5;fontSize=14;fontStyle=1;verticalAlign=top;align=center;spacingTop=8;" value="CT af - scraper · 10.0.10.af (Docker-in-LXC, 24/7)" vertex="1">
+          <mxGeometry height="910" width="1180" x="40" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="quartz" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Quartz scheduler&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;HourlyScrape job&lt;br&gt;cron: 0 0 9-22 * * ?&lt;br&gt;configurable timezone&lt;br&gt;3 jobs in parallel&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="220" x="110" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="admin_ui" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;scrapper-admin-ui&lt;/b&gt; :3000&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;React + Vite + Tailwind&lt;br&gt;nginx:1.27-alpine SPA&lt;br&gt;VITE_API_URL baked at build time&lt;br&gt;Pages: Jobs · Websites · Listings · Runs · Test&lt;/span&gt;" vertex="1">
+          <mxGeometry height="140" width="280" x="80" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="api_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffbe6;strokeColor=#999999;strokeWidth=2;fontSize=12;fontStyle=1;verticalAlign=top;align=center;spacingTop=6;" value="&lt;b&gt;scraper-api&lt;/b&gt; :8080 - .NET 10 minimal API (WebScrapper.ScraperApi)" vertex="1">
+          <mxGeometry height="540" width="670" x="470" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="endpoints" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Endpoints (HTTP)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;/scrapjobs · /websites · /listings&lt;br&gt;/scrapruns · /scrapruns/test · /health&lt;br&gt;/hubs/scrap-events (SignalR WebSocket)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="600" x="520" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="services" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Services (orchestration)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;ScrapRunsService · ScrapService (Playwright)&lt;br&gt;AdsService (EvaluateAd: dedupe → must-contain → must-not → price)&lt;br&gt;NotificationService · ScrapJobsService · WebsiteMetadataService&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="600" x="520" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="repos" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Repositories (data access)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;AdsRepository · ScrapJobsRepository · ScrapRunsRepository&lt;br&gt;WebsiteMetadataRepository · SmtpNotificationRepository&lt;br&gt;TelegramNotificationRepository (HttpClient)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="600" x="520" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="playwright" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Playwright Chromium (headless)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Bundled in image · /ms-playwright&lt;br&gt;Per job: load → accept ToC → search → scroll → next-page&lt;br&gt;Extracts cards via WebsiteMetadata.Selectors&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="600" x="520" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="pipe1" edge="1" parent="1" source="endpoints" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#444444;strokeWidth=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="services" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pipe2" edge="1" parent="1" source="services" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#444444;strokeWidth=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="repos" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pipe3" edge="1" parent="1" source="services" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1;dashed=1;dashPattern=4 4;fontSize=9;fontColor=#7B1414;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="playwright" value="ScrapService">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="450" y="310" />
+              <mxPoint x="450" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="quartz_to_api" edge="1" parent="1" source="quartz" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#996600;strokeWidth=2;fontSize=10;fontColor=#664400;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" target="services" value="hourly trigger&#xa;(in-process)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ui_to_api" edge="1" parent="1" source="admin_ui" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#0066CC;strokeWidth=2;fontSize=10;fontColor=#003399;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.7;entryDx=0;entryDy=0;" target="endpoints" value="REST + SignalR">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mongo" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=11;" value="&lt;b&gt;MongoDB Atlas&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Database: WebScrapperV2&lt;br&gt;Collections:&lt;br&gt;Ads · ScrapJobs · ScrapRuns&lt;br&gt;WebsiteMetadatas&lt;/span&gt;" vertex="1">
+          <mxGeometry height="140" width="260" x="1300" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="websites" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Target websites&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Classifieds-style listing pages&lt;br&gt;Selectors stored per-site&lt;br&gt;in WebsiteMetadata document&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="260" x="1300" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="telegram" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#0088cc;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Telegram Bot API&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;api.telegram.org&lt;br&gt;sendMessage (HTML)&lt;br&gt;NotifyWorthy ads only&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="280" x="500" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="phone" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;" value="&lt;b&gt;📱 My phone&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;Telegram chat&lt;br&gt;chat_id from config.env&lt;br&gt;or per-job override&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="260" x="860" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="browser" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27AE60;strokeWidth=2;fontSize=11;" value="&lt;b&gt;👤 Browser&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;https://scrapper-admin.local.example.com&lt;br&gt;Routed via Traefik on LAN&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="320" x="60" y="-80" as="geometry" />
+        </mxCell>
+        <mxCell id="repos_to_mongo" edge="1" parent="1" source="repos" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=3;fontSize=11;fontStyle=1;fontColor=#1B5E20;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="mongo" value="MongoDB.Driver">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="play_to_web" edge="1" parent="1" source="playwright" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=3;fontSize=11;fontStyle=1;fontColor=#7B1414;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="websites" value="HTTPS scrape">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="repos_to_tg" edge="1" parent="1" source="repos" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#0088cc;strokeWidth=2;fontSize=10;fontColor=#003366;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="telegram" value="HTTPS POST">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="500" y="455" />
+              <mxPoint x="500" y="630" />
+              <mxPoint x="640" y="630" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tg_to_phone" edge="1" parent="1" source="telegram" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#0088cc;strokeWidth=2;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="phone" value="push">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="browser_to_ui" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;strokeWidth=2;fontSize=10;" value="HTTPS (LAN)">
+          <mxGeometry relative="1" x="-0.6" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="220" y="10" />
+              <mxPoint x="220" y="10" />
+            </Array>
+            <mxPoint x="220" as="sourcePoint" />
+            <mxPoint x="220" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF5E0;strokeColor=#d6b656;fontSize=10;fontColor=#664400;align=left;spacingLeft=8;spacingTop=4;" value="&lt;b&gt;Pipeline (one ScrapRun)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:10px;&quot;&gt;1. load ScrapJob + WebsiteMetadata&lt;br&gt;2. Playwright scrape → List&amp;lt;Ad&amp;gt;&lt;br&gt;3. EvaluateAd per ad → AdDecision&lt;br&gt;     (Skipped · SavedSilent · NotifyWorthy)&lt;br&gt;4. persist new ads + ScrapRun audit row&lt;br&gt;5. Telegram + SMTP for NotifyWorthy only&lt;/span&gt;" vertex="1">
+          <mxGeometry height="110" width="620" x="500" y="850" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

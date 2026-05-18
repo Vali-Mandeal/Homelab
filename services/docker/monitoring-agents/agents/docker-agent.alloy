@@ -1,0 +1,70 @@
+// ==============================================================================
+// Alloy Agent - Docker-in-LXC / Docker VM (template)
+// ==============================================================================
+// Push model: metrics → Prometheus, Docker container logs → Loki
+// Placeholders replaced by deploy-agents.sh:
+//   __HOST__  → hostname (e.g. traefik, homepage)
+//   __IP__    → IP address
+// ==============================================================================
+
+// System Metrics (replaces node_exporter)
+prometheus.exporter.unix "system" {
+  disable_collectors = ["thermal_zone"]
+}
+
+prometheus.scrape "system_metrics" {
+  scrape_interval = "300s"
+  targets         = prometheus.exporter.unix.system.targets
+  forward_to      = [prometheus.remote_write.monitoring.receiver]
+}
+
+prometheus.remote_write "monitoring" {
+  endpoint {
+    url = "http://__MONITORING_IP__:9090/api/v1/write"
+  }
+  external_labels = {
+    host = "__HOST__",
+    ip   = "__IP__",
+  }
+}
+
+// Docker Container Logs
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "containers" {
+  targets = discovery.docker.containers.targets
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    target_label  = "container"
+    regex         = "/(.*)"
+  }
+}
+
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.containers.output
+  forward_to = [loki.process.add_labels.receiver]
+}
+
+// System Journal (Docker daemon events, systemd service logs)
+loki.source.journal "system" {
+  forward_to = [loki.process.add_labels.receiver]
+  labels     = { source = "journal" }
+}
+
+loki.process "add_labels" {
+  stage.static_labels {
+    values = {
+      host = "__HOST__",
+    }
+  }
+  forward_to = [loki.write.monitoring.receiver]
+}
+
+loki.write "monitoring" {
+  endpoint {
+    url = "http://__MONITORING_IP__:3100/loki/api/v1/push"
+  }
+}

@@ -1,0 +1,13 @@
+services:
+  scrapper-admin-ui:
+    image: "${UI_IMAGE:-scrapper-admin-ui:latest}"
+    container_name: scrapper-admin-ui
+    restart: unless-stopped
+    ports:
+      - "${UI_PORT:-3000}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
