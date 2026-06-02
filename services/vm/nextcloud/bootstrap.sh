@@ -478,6 +478,16 @@ APACHE_EOF'
     docker exec -u www-data nextcloud php occ app:remove richdocuments 2>/dev/null || true
     # Disable AppAPI (not needed - requires Docker socket for external AI/ML apps)
     docker exec -u www-data nextcloud php occ app:disable app_api 2>/dev/null || true
+    # Disable End-to-End Encryption: not used here. Nextcloud occasionally ships
+    # it as a default app and a stale RollbackBackgroundJob lingers in oc_jobs
+    # after disable - clean it so cron stops logging "class does not exist".
+    # occ has no delete-by-class, so look the job id up from background-job:list.
+    docker exec -u www-data nextcloud php occ app:disable end_to_end_encryption 2>/dev/null || true
+    e2e_job_id=$(docker exec -u www-data nextcloud php occ background-job:list 2>/dev/null \
+        | awk -F'|' '/EndToEndEncryption.*RollbackBackgroundJob/ {gsub(/[ \t]/, "", $2); print $2; exit}')
+    if [[ -n "$e2e_job_id" ]]; then
+        docker exec -u www-data nextcloud php occ background-job:delete "$e2e_job_id" 2>/dev/null || true
+    fi
     # Install and enable OnlyOffice connector
     docker exec -u www-data nextcloud php occ app:install onlyoffice 2>/dev/null || true
     docker exec -u www-data nextcloud php occ app:enable onlyoffice 2>/dev/null || true

@@ -59,6 +59,9 @@ services:
       - OVERWRITEPROTOCOL=https
       - OVERWRITECLIURL=${NEXTCLOUD_URL}
       - APACHE_BODY_LIMIT=0
+      # Default 512M; bumped because routine requests run ~260M and
+      # preview/thumbnail and large-folder scans push closer to the ceiling.
+      - PHP_MEMORY_LIMIT=768M
     volumes:
       - ${DB_NEXTCLOUD}:/var/www/html
       - ${MOUNT_PERSONAL}:/mnt/personal:rw
