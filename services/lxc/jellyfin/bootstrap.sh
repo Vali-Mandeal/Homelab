@@ -161,25 +161,43 @@ smart_restore() {
 # Setup nightly backup cron
 setup_backup_cron() {
     log "Setting up nightly backup cron job..."
-    
+
     # Ensure backup script exists
     if [ ! -f "/root/nightly-backup.sh" ]; then
         warn "Backup script not found at /root/nightly-backup.sh"
         warn "Make sure to deploy it separately"
         return
     fi
-    
+
     # Make executable
     chmod +x /root/nightly-backup.sh
-    
+
     # Remove existing Jellyfin backup cron jobs
     (crontab -l 2>/dev/null | grep -v "nightly-backup.sh") | crontab - 2>/dev/null || true
-    
+
     # Add new backup at 3 AM (after ARR backups at 2 AM)
     (crontab -l 2>/dev/null; echo "0 3 * * * /root/nightly-backup.sh >> $LOG_DIR/backup_cron.log 2>&1") | crontab -
-    
+
     log "✓ Nightly backup scheduled at 3 AM"
     info "Logs will be written to: $LOG_DIR/"
+}
+
+# Setup transcode auto-purge cron
+# Guards against a repeat of the 2026-07-15 outage where crashed-transcode leftovers
+# filled the LXC root disk and tripped Jellyfin's 2 GiB free-space startup check.
+setup_transcode_purge() {
+    log "Setting up transcode auto-purge cron job..."
+
+    local transcode_dir="$JELLYFIN_CACHE_LOCAL/transcodes"
+    local max_age="${TRANSCODE_MAX_AGE_DAYS:-1}"
+
+    # Remove any prior entry so re-runs stay idempotent
+    (crontab -l 2>/dev/null | grep -v "# jellyfin-transcode-purge") | crontab - 2>/dev/null || true
+
+    # 4 AM: after nightly-backup (3 AM), before daytime playback
+    (crontab -l 2>/dev/null; echo "0 4 * * * find $transcode_dir -mindepth 1 -mtime +$max_age -delete >> $LOG_DIR/transcode-purge.log 2>&1 # jellyfin-transcode-purge") | crontab -
+
+    log "✓ Transcode purge scheduled at 4 AM (files older than ${max_age}d)"
 }
 
 # Start Jellyfin service
@@ -231,6 +249,7 @@ main() {
     fix_config_permissions
     smart_restore
     setup_backup_cron
+    setup_transcode_purge
     start_jellyfin
     show_info
 }

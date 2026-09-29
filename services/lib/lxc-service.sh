@@ -206,6 +206,11 @@ setup_bind_mount() {
     # the NAS mount hadn't been accessed yet (e.g. fresh boot).
     append_lxc_config "lxc.hook.pre-start: sh -c 'ls ${host_path} >/dev/null 2>&1 || true'"
     append_lxc_config "lxc.mount.entry: ${host_path} ${container_path} none bind,optional,create=dir 0 0"
+
+    # Make pve-container@<CT>.service block on the host mount being live, so
+    # the bind can't establish onto an empty pre-mount stub at boot. The
+    # heal-nas-mounts timer handles recovering from any failed-at-boot mounts.
+    add_pve_container_mount_dependency "$host_path"
 }
 
 setup_gpu_passthrough() {

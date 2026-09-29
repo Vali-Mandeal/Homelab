@@ -85,10 +85,56 @@ install_qemu_guest_agent() {
 }
 
 wait_for_cloud_init() {
-    log_info "Waiting for cloud-init to finish..."
-    ssh_vm "cloud-init status --wait" &>/dev/null || true
-    # Also wait for any apt locks to release
-    ssh_vm "while fuser /var/lib/apt/lists/lock /var/lib/dpkg/lock-frontend 2>/dev/null; do sleep 2; done" || true
+    # Poll cloud-init status in a loop instead of `cloud-init status --wait`.
+    # --wait is a single SSH that blocks silently for however long cloud-init
+    # takes; the outer SSH from Mac→Proxmox sees no traffic and gets reset by
+    # ISP / NAT middleboxes after a few idle minutes. Polling opens short SSH
+    # sessions and emits a log line each iteration, which keeps the outer
+    # session visibly alive and gives us a hard timeout.
+    local timeout="${CLOUD_INIT_TIMEOUT:-900}"   # 15 min default
+    local interval=15
+    local elapsed=0
+
+    log_info "Waiting for cloud-init to finish (timeout: ${timeout}s)..."
+
+    while [[ $elapsed -lt $timeout ]]; do
+        local status
+        status=$(ssh_vm "cloud-init status 2>/dev/null | awk -F': ' '/status:/ {print \$2}'" 2>/dev/null \
+                 | tr -d '[:space:]' || echo "")
+
+        case "$status" in
+            done|disabled)
+                log_info "cloud-init: ${status} (after ${elapsed}s)"
+                break
+                ;;
+            error)
+                log_warn "cloud-init reported error - proceeding anyway"
+                break
+                ;;
+            "")
+                # No status yet (transient SSH or cloud-init hasn't started)
+                log_info "  cloud-init: probing... (${elapsed}s elapsed)"
+                ;;
+            *)
+                log_info "  cloud-init: ${status} (${elapsed}s elapsed)"
+                ;;
+        esac
+
+        sleep "$interval"
+        elapsed=$((elapsed + interval))
+    done
+
+    if [[ $elapsed -ge $timeout ]]; then
+        log_warn "cloud-init did not finish within ${timeout}s; proceeding anyway"
+    fi
+
+    # Also wait for any apt locks to release (bounded similarly)
+    local apt_elapsed=0
+    while [[ $apt_elapsed -lt 300 ]]; do
+        ssh_vm "fuser /var/lib/apt/lists/lock /var/lib/dpkg/lock-frontend 2>/dev/null" >/dev/null 2>&1 || break
+        sleep 5
+        apt_elapsed=$((apt_elapsed + 5))
+    done
 }
 
 configure_vm_ssh() {

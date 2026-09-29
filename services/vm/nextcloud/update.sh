@@ -99,12 +99,18 @@ perform_upgrade() {
     local current_version
     current_version=$(ssh_vm "docker exec -u www-data nextcloud php occ status --output=json 2>/dev/null" | \
         grep -o '"versionstring":"[^"]*"' | cut -d'"' -f4) || true
-
-    # Save current image tag for rollback (before overwriting compose file)
-    local old_image_line
-    old_image_line=$(ssh_vm "grep 'image: nextcloud:' /opt/nextcloud/docker-compose.yml")
     log_info "Current version: ${current_version:-unknown}"
-    log_info "Current image: ${old_image_line}"
+
+    # Tag the currently-running images as :rollback (and as the version string
+    # they were on) BEFORE pulling. After the pull, :latest moves forward but
+    # the old image stays addressable as nextcloud:rollback for one-shot revert.
+    # Docker won't garbage-collect tagged images, so this is durable.
+    log_info "Tagging current images for rollback..."
+    ssh_vm "docker tag nextcloud:latest nextcloud:rollback" 2>/dev/null || true
+    ssh_vm "docker tag onlyoffice/documentserver:latest onlyoffice/documentserver:rollback" 2>/dev/null || true
+    if [[ -n "${current_version:-}" ]]; then
+        ssh_vm "docker tag nextcloud:latest nextcloud:${current_version}" 2>/dev/null || true
+    fi
 
     # Push updated docker-compose.yml to VM (may have new image tag)
     log_info "Syncing docker-compose.yml to VM..."
@@ -140,7 +146,7 @@ perform_upgrade() {
 
     if [[ "$healthy" != "true" ]]; then
         log_error "Nextcloud did not become healthy within ${timeout}s"
-        rollback "$old_image_line"
+        rollback
         return
     fi
 
@@ -187,20 +193,24 @@ post_upgrade_maintenance() {
 # ==============================================================================
 
 rollback() {
-    local old_image_line="$1"
-
     log_section "ROLLING BACK"
     log_warn "Upgrade failed - reverting to previous state"
+
+    # Verify rollback tags exist; if not, bail with a clear message
+    if ! ssh_vm "docker image inspect nextcloud:rollback >/dev/null 2>&1"; then
+        log_error "No nextcloud:rollback tag on VM - cannot auto-rollback."
+        log_error "Manual recovery: SSH to VM and run restore.sh + docker compose up -d"
+        exit 1
+    fi
 
     # Stop everything
     log_info "Stopping containers..."
     ssh_vm "cd /opt/nextcloud && docker compose down" || true
 
-    # Revert docker-compose.yml to old image tag
-    local old_tag
-    old_tag=$(echo "$old_image_line" | sed 's/.*image: //')
-    log_info "Reverting image to: ${old_tag}"
-    ssh_vm "sed -i 's|image: nextcloud:.*|image: ${old_tag}|' /opt/nextcloud/docker-compose.yml"
+    # Point the compose file at the :rollback tags
+    log_info "Pointing compose at :rollback tags..."
+    ssh_vm "sed -i 's|image: nextcloud:.*|image: nextcloud:rollback|' /opt/nextcloud/docker-compose.yml"
+    ssh_vm "sed -i 's|image: onlyoffice/documentserver:.*|image: onlyoffice/documentserver:rollback|' /opt/nextcloud/docker-compose.yml"
 
     # Restore from the pre-upgrade backup
     log_info "Restoring database from pre-upgrade backup..."
@@ -210,8 +220,8 @@ rollback() {
         exit 1
     }
 
-    # Start with old image
-    log_info "Starting services with previous version..."
+    # Start with rollback images
+    log_info "Starting services with rollback images..."
     ssh_vm "cd /opt/nextcloud && docker compose up -d"
 
     # Wait for healthy

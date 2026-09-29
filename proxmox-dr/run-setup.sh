@@ -65,6 +65,7 @@ execute_proxmox_setup() {
     configure_network_bridges
     setup_lxc_id_mapping
     setup_storage_infrastructure
+    setup_heal_nas_mounts
     create_ubuntu_template
     create_golden_image_template
     setup_proxmox_api_users

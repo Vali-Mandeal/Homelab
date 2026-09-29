@@ -139,6 +139,7 @@ show_main_menu() {
     echo "    1) Deploy All Services"
     echo "    2) Deploy by Group"
     echo "    3) Deploy Custom Selection"
+    echo "    4) Rollback Single Service"
     echo ""
 
     local choice
@@ -148,11 +149,60 @@ show_main_menu() {
         1) select_all ;;
         2) show_group_menu ;;
         3) show_custom_menu ;;
+        4) show_rollback_menu ;;
         *)
             log_error "Invalid choice: $choice"
             exit 1
             ;;
     esac
+}
+
+# ==============================================================================
+# Selection: Rollback Single Service
+# ==============================================================================
+# Lists services that have a rollback.sh next to their deploy.sh, lets the
+# user pick one, and runs that service's rollback.sh via the same push-to-
+# Proxmox + remote-execute flow used for deploys. Exits when done - skips
+# prompt_deploy_mode / monitoring agent prompts since rollback isn't a deploy.
+
+show_rollback_menu() {
+    echo ""
+    echo "  Select service to roll back:"
+    echo ""
+
+    local rollback_indices=()
+    local n=0
+    for ((i = 0; i < SERVICE_COUNT; i++)); do
+        local name="${SERVICE_NAMES[$i]}"
+        local type="${SERVICE_TYPES[$i]}"
+        if [[ -f "${SERVICES_DIR}/${type}/${name}/rollback.sh" ]]; then
+            rollback_indices+=("$i")
+            n=$((n + 1))
+            printf "    %d) %-20s (%s)\n" "$n" "$name" "$type"
+        fi
+    done
+
+    if [[ ${#rollback_indices[@]} -eq 0 ]]; then
+        echo ""
+        log_error "No services with rollback support found."
+        log_info "A service supports rollback when it has rollback.sh next to deploy.sh."
+        exit 1
+    fi
+
+    echo ""
+    local choice
+    read -r -p "  > " choice
+
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] \
+        || [[ "$choice" -lt 1 ]] \
+        || [[ "$choice" -gt ${#rollback_indices[@]} ]]; then
+        log_error "Invalid choice: $choice"
+        exit 1
+    fi
+
+    local idx="${rollback_indices[$((choice - 1))]}"
+    rollback_service "$idx"
+    exit 0
 }
 
 # ==============================================================================
@@ -511,6 +561,50 @@ execute_remote_deploy() {
         -o ServerAliveCountMax=30 \
         -p "$SSH_PORT" "$SSH_TARGET" \
         "chmod +x '${REMOTE_DIR}/${type}/${name}/deploy.sh' && cd '${REMOTE_DIR}' && DEPLOY_MODE='${DEPLOY_MODE}' bash '${type}/${name}/deploy.sh' ${extra_args[*]:-}"
+}
+
+# ==============================================================================
+# Rollback Service
+# ==============================================================================
+# Mirrors deploy_service: sync files to Proxmox, run rollback.sh remotely,
+# clean up. Used only by show_rollback_menu (option 4).
+
+rollback_service() {
+    local idx="$1"
+    local name="${SERVICE_NAMES[$idx]}"
+    local type="${SERVICE_TYPES[$idx]}"
+
+    local local_service_dir="${SERVICES_DIR}/${type}/${name}"
+    local local_rollback_script="${local_service_dir}/rollback.sh"
+
+    if [[ ! -f "$local_rollback_script" ]]; then
+        log_error "rollback.sh not found for ${name}: ${type}/${name}/rollback.sh"
+        exit 1
+    fi
+
+    log_section "Rolling back: ${name} (${type})"
+
+    REMOTE_DIR="/tmp/homelab-rollback-${name}-$(date +%s)"
+
+    push_files_to_proxmox "$name" "$type" "$local_service_dir"
+    execute_remote_rollback "$name" "$type"
+    cleanup_remote "$name"
+}
+
+execute_remote_rollback() {
+    local name="$1"
+    local type="$2"
+
+    log_info "Executing rollback on Proxmox..."
+
+    local ssh_key_opt
+    ssh_key_opt=$(get_ssh_key_option)
+
+    ssh $ssh_key_opt -t \
+        -o ServerAliveInterval=60 \
+        -o ServerAliveCountMax=30 \
+        -p "$SSH_PORT" "$SSH_TARGET" \
+        "chmod +x '${REMOTE_DIR}/${type}/${name}/rollback.sh' && cd '${REMOTE_DIR}' && bash '${type}/${name}/rollback.sh'"
 }
 
 cleanup_remote() {

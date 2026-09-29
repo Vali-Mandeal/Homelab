@@ -89,19 +89,14 @@ verify_host_mount() {
 setup_docs_mount() {
     log_section "Configuring Documentation Bind Mount"
 
-    local conf="/etc/pve/lxc/${CT_ID}.conf"
-
-    if grep -q "lxc.mount.entry.*mnt/docs" "$conf" 2>/dev/null; then
-        log_info "Docs bind mount already configured"
-        return 0
-    fi
-
-    echo "lxc.mount.entry: ${PROXMOX_DOCS_PATH} ${CONTAINER_DOCS_PATH} none bind,ro,optional,create=dir 0 0" >> "$conf"
-    log_info "Bind mount configured: ${PROXMOX_DOCS_PATH} -> /${CONTAINER_DOCS_PATH}"
-
-    pct stop "$CT_ID"
-    pct start "$CT_ID"
-    sleep 5
+    # Delegate to the shared helper rather than hand-rolling the mount entry, so
+    # docs gets the same two protections every other bind-mounted LXC has:
+    #   1. lxc.hook.pre-start, which fires the autofs mount before the bind
+    #   2. the pve-container@<CT> RequiresMountsFor drop-in
+    # Hand-rolling this block is what left CT 118 bound to an empty pre-mount
+    # stub - Docusaurus then crash-looped on "version current has no docs".
+    setup_lxc_bind_mount "$PROXMOX_DOCS_PATH" "$CONTAINER_DOCS_PATH" \
+        "none bind,ro,optional,create=dir 0 0"
 }
 
 # ==============================================================================

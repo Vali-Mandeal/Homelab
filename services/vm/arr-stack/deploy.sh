@@ -17,6 +17,7 @@ DEPLOY_ROOT="${SCRIPT_DIR}/../.."
 
 source "${DEPLOY_ROOT}/lib/common.sh"
 source "${DEPLOY_ROOT}/lib/vm-service.sh"
+source "${DEPLOY_ROOT}/lib/heal-nas-mounts.sh"
 
 if [[ -f "${DEPLOY_ROOT}/config/homelab.env" ]]; then
     source "${DEPLOY_ROOT}/config/homelab.env"
@@ -35,6 +36,7 @@ main() {
     create_vm
     setup_base_packages
     setup_storage_mounts
+    setup_mount_resilience
     install_docker_in_vm
     install_portainer_agent
     deploy_arr_files
@@ -82,6 +84,16 @@ setup_storage_mounts() {
         "$SMB_UID" "$SMB_GID" "$SMB_USERNAME" "$SMB_PASSWORD"
 
     log_info "Storage mounts configured"
+}
+
+# ==============================================================================
+# Mount Resilience (heal-nas-mounts timer + docker.service drop-in)
+# ==============================================================================
+
+setup_mount_resilience() {
+    log_section "Installing NAS Mount Resilience"
+
+    setup_vm_nas_mount_resilience "$NFS_MOUNT" "$SMB_MOUNT"
 }
 
 # ==============================================================================

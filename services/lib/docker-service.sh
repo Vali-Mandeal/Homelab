@@ -315,20 +315,35 @@ setup_lxc_bind_mount() {
 
     local conf="/etc/pve/lxc/${CT_ID}.conf"
 
+    # Trigger systemd-automount on the host path before the bind - a bind alone
+    # does not fire autofs, so without this the LXC binds the empty pre-mount
+    # stub when the NAS share hasn't been accessed yet (e.g. fresh boot). This
+    # also covers manual `pct start`, which bypasses the RequiresMountsFor
+    # drop-in below. Mirrors setup_bind_mount in lxc-service.sh.
+    # Guarded: append_lxc_config/>> are not idempotent.
+    if ! grep -qF "lxc.hook.pre-start: sh -c 'ls ${host_path} " "$conf" 2>/dev/null; then
+        echo "lxc.hook.pre-start: sh -c 'ls ${host_path} >/dev/null 2>&1 || true'" >> "$conf"
+        log_info "Added autofs pre-start trigger for ${host_path}"
+    fi
+
     # Check if already configured
     if grep -q "$container_path" "$conf" 2>/dev/null; then
         log_info "Bind mount already configured for ${container_path}"
-        return 0
+    else
+        # Stop container to modify config
+        pct stop "$CT_ID" 2>/dev/null || true
+        sleep 2
+
+        echo "lxc.mount.entry: ${host_path} ${container_path#/} ${options}" >> "$conf"
+
+        pct start "$CT_ID"
+        sleep 3
     fi
 
-    # Stop container to modify config
-    pct stop "$CT_ID" 2>/dev/null || true
-    sleep 2
-
-    echo "lxc.mount.entry: ${host_path} ${container_path#/} ${options}" >> "$conf"
-
-    pct start "$CT_ID"
-    sleep 3
+    # Make pve-container@<CT>.service wait for the NAS mount before starting,
+    # so the bind can't establish onto an empty pre-mount stub at boot.
+    # (helper lives in common.sh, shared with the native-LXC setup_bind_mount)
+    add_pve_container_mount_dependency "$host_path"
 }
 
 # ==============================================================================
