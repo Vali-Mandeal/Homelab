@@ -33,6 +33,11 @@ services:
   onlyoffice:
     image: onlyoffice/documentserver:latest
     container_name: nextcloud-onlyoffice
+    # Wrapper renames the ad-blocker-bait Analytics.js module, then execs the
+    # image's own entrypoint - see onlyoffice-entrypoint.sh for details.
+    entrypoint: ["/onlyoffice-entrypoint.sh"]
+    volumes:
+      - ./onlyoffice-entrypoint.sh:/onlyoffice-entrypoint.sh:ro
     environment:
       - JWT_SECRET=${ONLYOFFICE_JWT_SECRET}
       - JWT_HEADER=AuthorizationJwt
@@ -48,7 +53,10 @@ services:
     restart: unless-stopped
 
   nextcloud:
-    image: nextcloud:latest
+    # Pinned to 33: OnlyOffice connector v10.0.0 has max-version=33 and refuses
+    # to enable on 34. Bump back to :latest (or :34) once the connector ships a
+    # release with max-version=34 (track https://apps.nextcloud.com/apps/onlyoffice).
+    image: nextcloud:33
     container_name: nextcloud
     environment:
       # DB credentials are NOT passed here - they trigger the entrypoint's

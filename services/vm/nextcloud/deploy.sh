@@ -113,7 +113,7 @@ deploy_nextcloud_files() {
 
     ssh_vm "mkdir -p /opt/nextcloud"
 
-    for file in docker-compose.yml .env bootstrap.sh nightly-backup.sh nightly-security-updates.sh restore.sh; do
+    for file in docker-compose.yml .env bootstrap.sh nightly-backup.sh nightly-security-updates.sh restore.sh onlyoffice-entrypoint.sh; do
         if [[ -f "${SCRIPT_DIR}/${file}" ]]; then
             scp_vm "${SCRIPT_DIR}/${file}" "root@${VM_IP}:/opt/nextcloud/${file}"
         fi
@@ -126,7 +126,7 @@ deploy_nextcloud_files() {
 TRAEFIK_CT_IP=${TRAEFIK_CT_IP}
 EOF
 
-    ssh_vm "chmod +x /opt/nextcloud/bootstrap.sh /opt/nextcloud/nightly-backup.sh /opt/nextcloud/nightly-security-updates.sh /opt/nextcloud/restore.sh"
+    ssh_vm "chmod +x /opt/nextcloud/bootstrap.sh /opt/nextcloud/nightly-backup.sh /opt/nextcloud/nightly-security-updates.sh /opt/nextcloud/restore.sh /opt/nextcloud/onlyoffice-entrypoint.sh"
 
     log_info "Nextcloud files deployed to /opt/nextcloud/"
 }
