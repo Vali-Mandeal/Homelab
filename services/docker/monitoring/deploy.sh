@@ -17,6 +17,7 @@ DEPLOY_ROOT="${SCRIPT_DIR}/../.."
 
 source "${DEPLOY_ROOT}/lib/common.sh"
 source "${DEPLOY_ROOT}/lib/docker-service.sh"
+source "${SCRIPT_DIR}/push-config.sh"
 
 # Load shared homelab config
 if [[ -f "${DEPLOY_ROOT}/config/homelab.env" ]]; then
@@ -95,54 +96,9 @@ deploy_monitoring_files() {
 
     local target="/opt/monitoring"
 
-    pct exec "$CT_ID" -- mkdir -p \
-        "${target}/provisioning/datasources" \
-        "${target}/provisioning/dashboards" \
-        "${target}/provisioning/alerting"
-
-    # docker-compose.yml - contains ${TRAEFIK_DOMAIN} for Grafana's root URL.
-    # Substitute that one variable at push time; leave other ${VAR}s for
-    # Docker Compose to resolve from its sibling .env.
-    local tmp_compose
-    tmp_compose=$(mktemp --suffix=.yml)
-    (
-        set -a
-        [[ -f "${DEPLOY_ROOT}/config/homelab.env" ]] && source "${DEPLOY_ROOT}/config/homelab.env"
-        source "${SCRIPT_DIR}/config.env"
-        set +a
-        envsubst '${TRAEFIK_DOMAIN}' < "${SCRIPT_DIR}/docker-compose.yml" > "$tmp_compose"
-    )
-    copy_file_to_container "$tmp_compose" "${target}/docker-compose.yml"
-    rm -f "$tmp_compose"
-
-    # Configs
-    copy_file_to_container "${SCRIPT_DIR}/loki-config.yaml" "${target}/loki-config.yaml"
-    copy_file_to_container "${SCRIPT_DIR}/prometheus.yml" "${target}/prometheus.yml"
-    # alloy-config.alloy uses __LOG_PATH__ placeholder for the backup-log path
-    local tmp_alloy
-    tmp_alloy=$(mktemp --suffix=.alloy)
-    sed "s|__LOG_PATH__|/${CONTAINER_SSD_PATH}/monitoring/logs/*.log|g" \
-        "${SCRIPT_DIR}/alloy-config.alloy" > "$tmp_alloy"
-    copy_file_to_container "$tmp_alloy" "${target}/alloy-config.alloy"
-    rm -f "$tmp_alloy"
-    # Grafana provisioning - datasources
-    copy_file_to_container "${SCRIPT_DIR}/provisioning/datasources/datasources.yaml" \
-        "${target}/provisioning/datasources/datasources.yaml"
-
-    # Grafana provisioning - dashboards
-    copy_file_to_container "${SCRIPT_DIR}/provisioning/dashboards/dashboards.yaml" \
-        "${target}/provisioning/dashboards/dashboards.yaml"
-    copy_file_to_container "${SCRIPT_DIR}/provisioning/dashboards/homelab-overview.json" \
-        "${target}/provisioning/dashboards/homelab-overview.json"
-    copy_file_to_container "${SCRIPT_DIR}/provisioning/dashboards/homelab-logs.json" \
-        "${target}/provisioning/dashboards/homelab-logs.json"
-
-    # Grafana provisioning - alerting (substitute Telegram credentials from config.env)
-    local alerts_tmp="/tmp/alerts.yaml"
-    sed "s|__TELEGRAM_BOT_TOKEN__|${TELEGRAM_BOT_TOKEN}|g; s|__TELEGRAM_CHAT_ID__|${TELEGRAM_CHAT_ID}|g" \
-        "${SCRIPT_DIR}/provisioning/alerting/alerts.yaml" > "$alerts_tmp"
-    copy_file_to_container "$alerts_tmp" "${target}/provisioning/alerting/alerts.yaml"
-    rm -f "$alerts_tmp"
+    # Compose, Loki/Prometheus/Alloy configs and Grafana provisioning - rendered
+    # and pushed by the shared helper (same one update.sh uses)
+    push_monitoring_config copy_file_to_container "$target"
 
     log_info "Monitoring files deployed"
 }

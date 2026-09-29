@@ -17,6 +17,7 @@ DEPLOY_ROOT="${SCRIPT_DIR}/../.."
 
 source "${DEPLOY_ROOT}/lib/common.sh"
 source "${DEPLOY_ROOT}/lib/docker-service.sh"
+source "${SCRIPT_DIR}/push-config.sh"
 
 if [[ -f "${DEPLOY_ROOT}/config/homelab.env" ]]; then
     source "${DEPLOY_ROOT}/config/homelab.env"
@@ -60,34 +61,18 @@ update_container_os() {
     log_info "OS packages updated"
 }
 
+pct_push_file() {
+    pct push "$CT_ID" "$1" "$2"
+}
+
 update_config_files() {
     log_section "Updating Configuration Files"
 
     local target="/opt/monitoring"
 
-    # docker-compose.yml - envsubst ${TRAEFIK_DOMAIN} at push time
-    if [[ -f "${SCRIPT_DIR}/docker-compose.yml" ]]; then
-        local tmp_compose
-        tmp_compose=$(mktemp --suffix=.yml)
-        (
-            set -a
-            [[ -f "${DEPLOY_ROOT}/config/homelab.env" ]] && source "${DEPLOY_ROOT}/config/homelab.env"
-            source "${SCRIPT_DIR}/config.env"
-            set +a
-            envsubst '${TRAEFIK_DOMAIN}' < "${SCRIPT_DIR}/docker-compose.yml" > "$tmp_compose"
-        )
-        pct push "$CT_ID" "$tmp_compose" "${target}/docker-compose.yml"
-        rm -f "$tmp_compose"
-        log_info "Updated docker-compose.yml"
-    fi
-
-    # Config files
-    for f in loki-config.yaml prometheus.yml alloy-config.alloy; do
-        if [[ -f "${SCRIPT_DIR}/${f}" ]]; then
-            pct push "$CT_ID" "${SCRIPT_DIR}/${f}" "${target}/${f}"
-            log_info "Updated ${f}"
-        fi
-    done
+    # Compose, Loki/Prometheus/Alloy configs and Grafana provisioning - rendered
+    # and pushed by the shared helper (same one deploy.sh uses)
+    push_monitoring_config pct_push_file "$target"
 
     # Signal webhook config - substitute phone numbers from config.env
     if [[ -f "${SCRIPT_DIR}/signal-webhook-config.yaml" ]]; then
@@ -98,24 +83,6 @@ update_config_files() {
         rm -f "$signal_tmp"
         log_info "Updated signal-webhook-config.yaml"
     fi
-
-    # Grafana provisioning
-    pct exec "$CT_ID" -- mkdir -p \
-        "${target}/provisioning/datasources" \
-        "${target}/provisioning/dashboards" \
-        "${target}/provisioning/alerting"
-
-    for prov_file in \
-        provisioning/datasources/datasources.yaml \
-        provisioning/dashboards/dashboards.yaml \
-        provisioning/dashboards/homelab-overview.json \
-        provisioning/dashboards/homelab-logs.json \
-        provisioning/alerting/alerts.yaml; do
-        if [[ -f "${SCRIPT_DIR}/${prov_file}" ]]; then
-            pct push "$CT_ID" "${SCRIPT_DIR}/${prov_file}" "${target}/${prov_file}"
-            log_info "Updated ${prov_file}"
-        fi
-    done
 
     # Backup/restore scripts
     for script in nightly-backup.sh restore.sh; do

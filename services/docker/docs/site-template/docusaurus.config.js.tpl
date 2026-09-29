@@ -9,7 +9,7 @@ const config = {
   tagline: '__SITE_TAGLINE__',
   favicon: 'img/favicon.ico',
 
-  url: 'https://docs.local.prohod.ro',
+  url: 'https://__DOCS_DOMAIN__',
   baseUrl: '/__SITE_NAME__/',
 
   onBrokenLinks: 'warn',

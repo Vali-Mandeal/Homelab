@@ -6,8 +6,8 @@
 # services.yaml and widgets.yaml carry ${VAR} placeholders (service IPs) that
 # must be rendered with envsubst before pushing. deploy.sh and update.sh used to
 # each carry their own copy of this loop; update.sh's copy skipped envsubst and
-# shipped literal "${MEDIA_SERVER_VM_IP}" hostnames, which the local.prohod.ro
-# search domain + wildcard DNS resolved to Traefik - every widget broke.
+# shipped literal "${MEDIA_SERVER_VM_IP}" hostnames, which the LAN search domain
+# + wildcard DNS resolved to the reverse proxy - every widget broke.
 #
 # Requires: CT_ID, SCRIPT_DIR, DEPLOY_ROOT, and a push function taking
 # <src> <dest> (deploy.sh: copy_file_to_container, update.sh: pct push wrapper).

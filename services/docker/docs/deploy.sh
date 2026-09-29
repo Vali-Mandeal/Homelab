@@ -136,6 +136,8 @@ setup_docusaurus_sites() {
     pct push "$CT_ID" "$template_tar" /tmp/site-template.tar.gz
     rm -f "$template_tar"
 
+    : "${DOCS_DOMAIN:?DOCS_DOMAIN must be set in config.env}"
+
     for doc in "${docs[@]}"; do
         local site_dir="/opt/docs-sites/${doc}"
 
@@ -152,9 +154,11 @@ setup_docusaurus_sites() {
         site_title=$(resolve_site_title "$doc")
         site_tagline=$(resolve_site_tagline "$doc")
 
-        # Instantiate config template
+        # Instantiate config template (__DOCS_DOMAIN__ comes from config.env so the
+        # public repo never carries the real hostname)
         pct exec "$CT_ID" -- bash -c "
             sed \
+                -e 's|__DOCS_DOMAIN__|${DOCS_DOMAIN}|g' \
                 -e 's|__SITE_NAME__|${doc}|g' \
                 -e 's|__SITE_TITLE__|${site_title}|g' \
                 -e 's|__SITE_TAGLINE__|${site_tagline}|g' \
