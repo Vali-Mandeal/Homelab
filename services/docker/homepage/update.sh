@@ -16,6 +16,7 @@ DEPLOY_ROOT="${SCRIPT_DIR}/../.."
 
 source "${DEPLOY_ROOT}/lib/common.sh"
 source "${DEPLOY_ROOT}/lib/docker-service.sh"
+source "${SCRIPT_DIR}/push-config.sh"
 
 if [[ -f "${DEPLOY_ROOT}/config/homelab.env" ]]; then
     source "${DEPLOY_ROOT}/config/homelab.env"
@@ -59,6 +60,10 @@ update_container_os() {
     log_info "OS packages updated"
 }
 
+pct_push_file() {
+    pct push "$CT_ID" "$1" "$2"
+}
+
 update_config_files() {
     log_section "Updating Configuration Files"
 
@@ -70,13 +75,9 @@ update_config_files() {
         log_info "Updated docker-compose.yml"
     fi
 
-    # Update config YAML files
-    for f in settings.yaml services.yaml widgets.yaml bookmarks.yaml docker.yaml; do
-        if [[ -f "${SCRIPT_DIR}/config/${f}" ]]; then
-            pct push "$CT_ID" "${SCRIPT_DIR}/config/${f}" "${target}/config/${f}"
-            log_info "Updated ${f}"
-        fi
-    done
+    # Update config YAML files (services.yaml/widgets.yaml rendered via envsubst -
+    # same helper as deploy.sh, so the two can't drift apart again)
+    push_homepage_config pct_push_file "$target"
 
     # Update custom CSS
     if [[ -f "${SCRIPT_DIR}/config/custom.css" ]]; then

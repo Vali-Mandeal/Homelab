@@ -16,6 +16,7 @@ DEPLOY_ROOT="${SCRIPT_DIR}/../.."
 
 source "${DEPLOY_ROOT}/lib/common.sh"
 source "${DEPLOY_ROOT}/lib/docker-service.sh"
+source "${SCRIPT_DIR}/push-config.sh"
 
 # Load shared homelab config
 if [[ -f "${DEPLOY_ROOT}/config/homelab.env" ]]; then
@@ -54,29 +55,8 @@ deploy_homepage_files() {
     # Copy docker-compose.yml
     copy_file_to_container "${SCRIPT_DIR}/docker-compose.yml" "${target}/docker-compose.yml"
 
-    # Copy config YAML files
-    # services.yaml and widgets.yaml contain ${VAR} placeholders - substitute before pushing.
-    # envsubst reads the *process environment*, not shell vars - re-source with set -a
-    # in a subshell so vars are exported only for this substitution.
-    for f in settings.yaml services.yaml widgets.yaml bookmarks.yaml docker.yaml; do
-        if [[ -f "${SCRIPT_DIR}/config/${f}" ]]; then
-            if [[ "$f" == "services.yaml" || "$f" == "widgets.yaml" ]]; then
-                local tmp_yaml
-                tmp_yaml=$(mktemp --suffix=.yaml)
-                (
-                    set -a
-                    [[ -f "${DEPLOY_ROOT}/config/homelab.env" ]] && source "${DEPLOY_ROOT}/config/homelab.env"
-                    source "${SCRIPT_DIR}/config.env"
-                    set +a
-                    envsubst < "${SCRIPT_DIR}/config/${f}" > "$tmp_yaml"
-                )
-                copy_file_to_container "$tmp_yaml" "${target}/config/${f}"
-                rm -f "$tmp_yaml"
-            else
-                copy_file_to_container "${SCRIPT_DIR}/config/${f}" "${target}/config/${f}"
-            fi
-        fi
-    done
+    # Copy config YAML files (services.yaml/widgets.yaml rendered via envsubst)
+    push_homepage_config copy_file_to_container "$target"
 
     # Copy logo and wallpaper to images/ (mounted at /app/public/images in container)
     if [[ -f "${SCRIPT_DIR}/logo.jpg" ]]; then
