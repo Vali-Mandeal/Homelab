@@ -59,6 +59,7 @@ execute_proxmox_setup() {
     upgrade_proxmox_packages
     configure_system_locale
     setup_powertop
+    setup_cpufreq_policy
     setup_glances
     setup_wake_on_lan
     setup_ssh_access
