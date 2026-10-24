@@ -33,11 +33,6 @@ services:
   onlyoffice:
     image: onlyoffice/documentserver:latest
     container_name: nextcloud-onlyoffice
-    # Wrapper renames the ad-blocker-bait Analytics.js module, then execs the
-    # image's own entrypoint - see onlyoffice-entrypoint.sh for details.
-    entrypoint: ["/onlyoffice-entrypoint.sh"]
-    volumes:
-      - ./onlyoffice-entrypoint.sh:/onlyoffice-entrypoint.sh:ro
     environment:
       - JWT_SECRET=${ONLYOFFICE_JWT_SECRET}
       - JWT_HEADER=AuthorizationJwt

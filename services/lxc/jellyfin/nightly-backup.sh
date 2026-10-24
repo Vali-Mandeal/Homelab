@@ -19,6 +19,9 @@ fi
 BACKUP_DIR="$BACKUP_ROOT/backups"
 LOG_DIR="$BACKUP_ROOT/logs"
 RETENTION_DAYS=7
+# Per-run logs are tailed by Alloy (logs/*.log), so unpruned they pile up as
+# open file handles on the SMB share.
+LOG_RETENTION_DAYS=14
 
 # Function to get current timestamp
 get_timestamp() {
@@ -100,6 +103,12 @@ if [ -n "$OLD_BACKUPS" ]; then
 else
     echo "[$(get_timestamp)] No old backups to clean"
 fi
+
+# Cleanup old per-run logs (only backup_<timestamp>.log - append-only logs
+# such as backup_cron.log are left alone)
+OLD_LOG_COUNT=$(find "$LOG_DIR" -maxdepth 1 -name "backup_[0-9]*.log" -type f -mtime +$LOG_RETENTION_DAYS 2>/dev/null | wc -l)
+find "$LOG_DIR" -maxdepth 1 -name "backup_[0-9]*.log" -type f -mtime +$LOG_RETENTION_DAYS -delete 2>/dev/null
+echo "[$(get_timestamp)] Deleted $OLD_LOG_COUNT log(s) older than $LOG_RETENTION_DAYS days"
 
 # Show current backups
 BACKUP_COUNT=$(ls -1 "$BACKUP_DIR"/jellyfin_backup_*.tar.gz 2>/dev/null | wc -l)

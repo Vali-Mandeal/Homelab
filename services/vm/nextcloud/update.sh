@@ -66,7 +66,7 @@ update_host_os() {
     log_section "Applying OS Security Patches"
 
     ssh_vm "DEBIAN_FRONTEND=noninteractive apt-get update -qq && \
-            DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -qq"
+            DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -qq && apt-get clean"
 
     log_info "OS packages updated"
 }
@@ -112,12 +112,9 @@ perform_upgrade() {
         ssh_vm "docker tag nextcloud:latest nextcloud:${current_version}" 2>/dev/null || true
     fi
 
-    # Push updated docker-compose.yml to VM (may have new image tag), plus the
-    # OnlyOffice entrypoint wrapper it bind-mounts
+    # Push updated docker-compose.yml to VM (may have new image tag)
     log_info "Syncing docker-compose.yml to VM..."
     scp_vm "${SCRIPT_DIR}/docker-compose.yml" "root@${VM_IP}:/opt/nextcloud/docker-compose.yml"
-    scp_vm "${SCRIPT_DIR}/onlyoffice-entrypoint.sh" "root@${VM_IP}:/opt/nextcloud/onlyoffice-entrypoint.sh"
-    ssh_vm "chmod +x /opt/nextcloud/onlyoffice-entrypoint.sh"
 
     # Enable maintenance mode
     log_info "Enabling maintenance mode..."

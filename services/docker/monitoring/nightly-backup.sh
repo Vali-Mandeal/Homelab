@@ -173,6 +173,13 @@ else
     log "No old backups to clean up"
 fi
 
+# Cleanup old per-run logs (backup_<timestamp>.log). Alloy tails this directory,
+# so unpruned logs pile up as open file handles on the SMB share.
+LOG_RETENTION_DAYS=14
+old_log_count=$(find "$LOG_DIR" -maxdepth 1 -name "backup_[0-9]*.log" -type f -mtime +$LOG_RETENTION_DAYS 2>/dev/null | wc -l)
+find "$LOG_DIR" -maxdepth 1 -name "backup_[0-9]*.log" -type f -mtime +$LOG_RETENTION_DAYS -delete 2>/dev/null || true
+log "Deleted $old_log_count log(s) older than $LOG_RETENTION_DAYS days"
+
 # Show current state
 BACKUP_COUNT=$(ls -1 "$BACKUP_DIR"/monitoring_backup_*.tar.gz 2>/dev/null | wc -l)
 log "Total backups: $BACKUP_COUNT"

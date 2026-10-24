@@ -84,7 +84,7 @@ ensure_docker_nat() {
 update_container_os() {
     log_section "Applying OS Security Patches"
     pct exec "$CT_ID" -- bash -c "DEBIAN_FRONTEND=noninteractive apt-get update -qq && \
-                                   DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -qq"
+                                   DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -qq && apt-get clean"
     log_info "OS packages updated"
 }
 
