@@ -171,6 +171,7 @@ configure_qbittorrent_password() {
 [Preferences]
 WebUI\Username=admin
 WebUI\Password_PBKDF2="@ByteArray(ARQ77eY1NUZaQsuDHbIMCA==:0WMRkYTUWVT9wVvdDtHAjU9b3b7uB8NR1Gur2hmQCvCDpm39Q+PsJRJPaCU51dEiz+dTzh8qbPsL8WkFljQYFQ==)"
+WebUI\LocalHostAuth=false
 QBTCONF
 
         chown -R $PUID:$PGID "$DB_QBITTORRENT/qBittorrent"

@@ -5,8 +5,9 @@
 # Runs ON Proxmox. SSHs into the ARR Stack VM to:
 #   1. Apply OS security patches (apt upgrade)
 #   2. Backup before upgrading (safety net)
-#   3. Pull new Docker images and restart
-#   4. Clean up old images
+#   3. Sync docker-compose.yml from the repo (image pins, env changes)
+#   4. Pull new Docker images and restart
+#   5. Clean up old images
 # ==============================================================================
 
 set -euo pipefail
@@ -33,6 +34,7 @@ main() {
     verify_vm_accessible
     update_host_os
     run_pre_upgrade_backup
+    sync_compose
     pull_and_restart
     cleanup_images
 
@@ -84,6 +86,21 @@ run_pre_upgrade_backup() {
     fi
 
     log_info "Pre-upgrade backup completed"
+}
+
+# ==============================================================================
+# Sync Compose
+# ==============================================================================
+
+sync_compose() {
+    log_section "Syncing docker-compose.yml"
+
+    # Without this, image pins bumped in the repo never reach the VM and
+    # 'docker compose pull' keeps pulling the old tags.
+    scp_vm "${SCRIPT_DIR}/docker-compose.yml" "root@${VM_IP}:/opt/arr/docker-compose.yml"
+    ssh_vm "cd /opt/arr && docker compose config -q"
+
+    log_info "docker-compose.yml synced"
 }
 
 # ==============================================================================
